@@ -1,0 +1,18 @@
+spring:
+  datasource:
+    driver-class-name: oracle.jdbc.driver.OracleDriver
+    url: jdbc:oracle:thin:@192.168.137.10:1521:XE
+    username: tester
+    password: tester
+
+sso-engine:
+  key: 368B184727E89AB69FAF
+  ip: 192.168.137.10
+  port: 7000
+
+server:
+  servlet:
+    context-path: /WAM
+
+logging:
+  config: classpath:log4j.yml

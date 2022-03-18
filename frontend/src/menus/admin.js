@@ -1,0 +1,140 @@
+import React from 'react'
+
+const contextPath = '/WAM';
+
+const _nav = [
+    {
+        _tag: 'CSidebarNavTitle',
+        _children: ['authority']
+    },
+    {
+        _tag: 'CSidebarNavDropdown',
+        name: '권한',
+        route: `${contextPath}/authority`,
+        icon: 'cil-lock-locked',
+        _children: [
+            {
+                _tag: 'CSidebarNavItem',
+                name: '상태',
+                to: `${contextPath}/authority/status`,
+            },
+            {
+                _tag: 'CSidebarNavItem',
+                name: '신청',
+                to: `${contextPath}/authority/request`,
+            },
+            {
+                _tag: 'CSidebarNavItem',
+                name: '이력',
+                to: `${contextPath}/authority/hist`,
+            },
+            {
+                _tag: 'CSidebarNavItem',
+                name: '회수',
+                to: `${contextPath}/authority/manage`,
+            },
+        ],
+    },
+    {
+        _tag: 'CSidebarNavTitle',
+        _children: ['approval'],
+    },
+    {
+        _tag: 'CSidebarNavDropdown',
+        name: '결재',
+        route: `${contextPath}/approval`,
+        icon: 'cil-notes',
+        _children: [
+            {
+                _tag: 'CSidebarNavItem',
+                name: '목록',
+                to: `${contextPath}/approval/list`,
+            },
+        ],
+    },
+    {
+        _tag: 'CSidebarNavTitle',
+        _children: ['mapping'],
+    },
+    {
+        _tag: 'CSidebarNavDropdown',
+        name: '매핑',
+        route: `${contextPath}/mapping`,
+        icon: 'cil-pencil',
+        _children: [
+            {
+                _tag: 'CSidebarNavItem',
+                name: '조직&역할 (결재)',
+                to: `${contextPath}/mapping/org-roles-approval`,
+            },
+            {
+                _tag: 'CSidebarNavItem',
+                name: '조직&역할 (기본)',
+                to: `${contextPath}/mapping/org-roles-default`,
+            },
+            {
+                _tag: 'CSidebarNavItem',
+                name: '역할&서비스',
+                to: `${contextPath}/mapping/role-services`,
+            },
+        ],
+    },
+    {
+        _tag: 'CSidebarNavTitle',
+        _children: ['batch'],
+    },
+    {
+        _tag: 'CSidebarNavDropdown',
+        name: '배치',
+        route: `${contextPath}/batch`,
+        icon: 'cil-code',
+        _children: [
+            {
+                _tag: 'CSidebarNavItem',
+                name: '목록',
+                to: `${contextPath}/batch/list`,
+            },
+            {
+                _tag: 'CSidebarNavItem',
+                name: '로그',
+                to: `${contextPath}/batch/log`,
+            },
+        ],
+    },
+    {
+        _tag: 'CSidebarNavTitle',
+        _children: ['evidence'],
+    },
+    {
+        _tag: 'CSidebarNavDropdown',
+        name: '증적',
+        route: `${contextPath}/evidence`,
+        icon: 'cil-av-timer',
+        _children: [
+            {
+                _tag: 'CSidebarNavItem',
+                name: '조회',
+                to: `${contextPath}/evidence/search`,
+            },
+        ],
+    },
+    {
+        _tag: 'CSidebarNavTitle',
+        _children: ['setting'],
+    },
+    {
+        _tag: 'CSidebarNavDropdown',
+        name: '설정',
+        route: `${contextPath}/setting`,
+        icon: 'cil-cog',
+        _children: [
+            {
+                _tag: 'CSidebarNavItem',
+                name: '콘솔',
+                to: `${contextPath}/setting/console`,
+            },
+        ],
+    },
+];
+
+export default _nav;

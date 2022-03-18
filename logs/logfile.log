@@ -1,0 +1,17 @@
+[INFO ] 2022-03-18 12:20:19.248 [main] ReactApplication - Starting ReactApplication on DESKTOP-UGGRC4E with PID 27308 (C:\Users\shjung\Desktop\job\personalProjects\springboot_react_modify\out\production\classes started by shjung in C:\Users\shjung\Desktop\job\personalProjects\springboot_react_modify)
+[INFO ] 2022-03-18 12:20:19.301 [main] ReactApplication - No active profile set, falling back to default profiles: default
+[INFO ] 2022-03-18 12:20:23.755 [main] TomcatWebServer - Tomcat initialized with port(s): 8080 (http)
+[INFO ] 2022-03-18 12:20:23.854 [main] Http11NioProtocol - Initializing ProtocolHandler ["http-nio-8080"]
+[INFO ] 2022-03-18 12:20:23.858 [main] StandardService - Starting service [Tomcat]
+[INFO ] 2022-03-18 12:20:23.861 [main] StandardEngine - Starting Servlet engine: [Apache Tomcat/9.0.27]
+[INFO ] 2022-03-18 12:20:24.406 [main] [/WAM] - Initializing Spring embedded WebApplicationContext
+[INFO ] 2022-03-18 12:20:24.407 [main] ContextLoader - Root WebApplicationContext: initialization completed in 4803 ms
+[INFO ] 2022-03-18 12:20:25.316 [main] ThreadPoolTaskExecutor - Initializing ExecutorService 'applicationTaskExecutor'
+[WARN ] 2022-03-18 12:20:26.435 [main] FreeMarkerAutoConfiguration - Cannot find template location(s): [classpath:/templates/] (please add some templates, check your FreeMarker configuration, or set spring.freemarker.checkTemplateLocation=false)
+[INFO ] 2022-03-18 12:20:26.757 [main] ThreadPoolTaskScheduler - Initializing ExecutorService 'taskScheduler'
+[INFO ] 2022-03-18 12:20:26.939 [main] Http11NioProtocol - Starting ProtocolHandler ["http-nio-8080"]
+[INFO ] 2022-03-18 12:20:27.356 [main] TomcatWebServer - Tomcat started on port(s): 8080 (http) with context path '/WAM'
+[INFO ] 2022-03-18 12:20:27.371 [main] ReactApplication - Started ReactApplication in 10.543 seconds (JVM running for 30.307)
+[INFO ] 2022-03-18 12:20:28.305 [main] SetConfig - INFO SUCCESS
+[ERROR] 2022-03-18 12:20:28.305 [main] SetConfig - ERROR SUCCESS
+[INFO ] 2022-03-18 12:20:28.306 [main] ThreadPoolTaskScheduler - Initializing ExecutorService
