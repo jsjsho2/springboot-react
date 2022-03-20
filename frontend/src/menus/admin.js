@@ -1,7 +1,5 @@
 import React from 'react'
 
-const contextPath = '/WAM';
-
 const _nav = [
     {
         _tag: 'CSidebarNavTitle',
@@ -10,28 +8,28 @@ const _nav = [
     {
         _tag: 'CSidebarNavDropdown',
         name: '권한',
-        route: `${contextPath}/authority`,
+        route: `/authority`,
         icon: 'cil-lock-locked',
         _children: [
             {
                 _tag: 'CSidebarNavItem',
                 name: '상태',
-                to: `${contextPath}/authority/status`,
+                to: `/authority/status`,
             },
             {
                 _tag: 'CSidebarNavItem',
                 name: '신청',
-                to: `${contextPath}/authority/request`,
+                to: `/authority/request`,
             },
             {
                 _tag: 'CSidebarNavItem',
                 name: '이력',
-                to: `${contextPath}/authority/hist`,
+                to: `/authority/hist`,
             },
             {
                 _tag: 'CSidebarNavItem',
                 name: '회수',
-                to: `${contextPath}/authority/manage`,
+                to: `/authority/manage`,
             },
         ],
     },
@@ -42,13 +40,13 @@ const _nav = [
     {
         _tag: 'CSidebarNavDropdown',
         name: '결재',
-        route: `${contextPath}/approval`,
+        route: `/approval`,
         icon: 'cil-notes',
         _children: [
             {
                 _tag: 'CSidebarNavItem',
                 name: '목록',
-                to: `${contextPath}/approval/list`,
+                to: `/approval/list`,
             },
         ],
     },
@@ -59,23 +57,23 @@ const _nav = [
     {
         _tag: 'CSidebarNavDropdown',
         name: '매핑',
-        route: `${contextPath}/mapping`,
+        route: `/mapping`,
         icon: 'cil-pencil',
         _children: [
             {
                 _tag: 'CSidebarNavItem',
                 name: '조직&역할 (결재)',
-                to: `${contextPath}/mapping/org-roles-approval`,
+                to: `/mapping/org-roles-approval`,
             },
             {
                 _tag: 'CSidebarNavItem',
                 name: '조직&역할 (기본)',
-                to: `${contextPath}/mapping/org-roles-default`,
+                to: `/mapping/org-roles-default`,
             },
             {
                 _tag: 'CSidebarNavItem',
                 name: '역할&서비스',
-                to: `${contextPath}/mapping/role-services`,
+                to: `/mapping/role-services`,
             },
         ],
     },
@@ -86,18 +84,18 @@ const _nav = [
     {
         _tag: 'CSidebarNavDropdown',
         name: '배치',
-        route: `${contextPath}/batch`,
+        route: `/batch`,
         icon: 'cil-code',
         _children: [
             {
                 _tag: 'CSidebarNavItem',
                 name: '목록',
-                to: `${contextPath}/batch/list`,
+                to: `/batch/list`,
             },
             {
                 _tag: 'CSidebarNavItem',
                 name: '로그',
-                to: `${contextPath}/batch/log`,
+                to: `/batch/log`,
             },
         ],
     },
@@ -108,13 +106,13 @@ const _nav = [
     {
         _tag: 'CSidebarNavDropdown',
         name: '증적',
-        route: `${contextPath}/evidence`,
+        route: `/evidence`,
         icon: 'cil-av-timer',
         _children: [
             {
                 _tag: 'CSidebarNavItem',
                 name: '조회',
-                to: `${contextPath}/evidence/search`,
+                to: `/evidence/search`,
             },
         ],
     },
@@ -125,13 +123,13 @@ const _nav = [
     {
         _tag: 'CSidebarNavDropdown',
         name: '설정',
-        route: `${contextPath}/setting`,
+        route: `/setting`,
         icon: 'cil-cog',
         _children: [
             {
                 _tag: 'CSidebarNavItem',
                 name: '콘솔',
-                to: `${contextPath}/setting/console`,
+                to: `/setting/console`,
             },
         ],
     },

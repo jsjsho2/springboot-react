@@ -24,28 +24,26 @@ const EvidenceSearch = React.lazy(() => import('../views/evidence/Search'));
 // setting
 const SettingConsole = React.lazy(() => import('../views/setting/Console'));
 
-const contextPath = '/WAM';
-
 const routes = [
-  {path: `${contextPath}/`, exact: true, name: 'Home'},
-  {path: `${contextPath}/authority`, name: '권한', component: AuthorityStatus, exact: true},
-  {path: `${contextPath}/authority/status`, name: '상태', component: AuthorityStatus},
-  {path: `${contextPath}/authority/request`, name: '신청', component: AuthorityRequest},
-  {path: `${contextPath}/authority/hist`, name: '이력', component: AuthorityHist},
-  {path: `${contextPath}/authority/manage`, name: '관리', component: AuthorityManage},
-  {path: `${contextPath}/approval`, name: '결재', component: ApprovalList, exact: true},
-  {path: `${contextPath}/approval/list`, name: '목록', component: ApprovalList},
-  {path: `${contextPath}/mapping`, name: '매핑', component: MappingOrgRolesApproval, exact: true},
-  {path: `${contextPath}/mapping/org-roles-approval`, name: '조직&역할 (결재)', component: MappingOrgRolesApproval},
-  {path: `${contextPath}/mapping/org-roles-default`, name: '조직&역할 (기본)', component: MappingOrgRolesDefault},
-  {path: `${contextPath}/mapping/role-services`, name: '역할&서비스', component: MappingRoleServices},
-  {path: `${contextPath}/batch`, name: '배치', component: BatchList, exact: true},
-  {path: `${contextPath}/batch/list`, name: '목록', component: BatchList},
-  {path: `${contextPath}/batch/log`, name: '로그', component: BatchLog},
-  {path: `${contextPath}/evidence`, name: '증적', component: EvidenceSearch, exact: true},
-  {path: `${contextPath}/evidence/search`, name: '조회', component: EvidenceSearch},
-  {path: `${contextPath}/setting`, name: '설정', component: SettingConsole, exact: true},
-  {path: `${contextPath}/setting/console`, name: '콘솔', component: SettingConsole},
+  {path: `/`, exact: true, name: 'Home'},
+  {path: `/authority`, name: '권한', component: AuthorityStatus, exact: true},
+  {path: `/authority/status`, name: '상태', component: AuthorityStatus},
+  {path: `/authority/request`, name: '신청', component: AuthorityRequest},
+  {path: `/authority/hist`, name: '이력', component: AuthorityHist},
+  {path: `/authority/manage`, name: '관리', component: AuthorityManage},
+  {path: `/approval`, name: '결재', component: ApprovalList, exact: true},
+  {path: `/approval/list`, name: '목록', component: ApprovalList},
+  {path: `/mapping`, name: '매핑', component: MappingOrgRolesApproval, exact: true},
+  {path: `/mapping/org-roles-approval`, name: '조직&역할 (결재)', component: MappingOrgRolesApproval},
+  {path: `/mapping/org-roles-default`, name: '조직&역할 (기본)', component: MappingOrgRolesDefault},
+  {path: `/mapping/role-services`, name: '역할&서비스', component: MappingRoleServices},
+  {path: `/batch`, name: '배치', component: BatchList, exact: true},
+  {path: `/batch/list`, name: '목록', component: BatchList},
+  {path: `/batch/log`, name: '로그', component: BatchLog},
+  {path: `/evidence`, name: '증적', component: EvidenceSearch, exact: true},
+  {path: `/evidence/search`, name: '조회', component: EvidenceSearch},
+  {path: `/setting`, name: '설정', component: SettingConsole, exact: true},
+  {path: `/setting/console`, name: '콘솔', component: SettingConsole},
 ];
 
 export default routes

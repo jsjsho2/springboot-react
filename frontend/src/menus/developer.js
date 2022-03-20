@@ -1,7 +1,5 @@
 import React from 'react'
 
-const contextPath = '/WAM';
-
 const _nav = [
     {
         _tag: 'CSidebarNavTitle',
@@ -10,23 +8,23 @@ const _nav = [
     {
         _tag: 'CSidebarNavDropdown',
         name: '권한',
-        route: `${contextPath}/authority`,
+        route: `/authority`,
         icon: 'cil-lock-locked',
         _children: [
             {
                 _tag: 'CSidebarNavItem',
                 name: '상태',
-                to: `${contextPath}/authority/status `,
+                to: `/authority/status `,
             },
             {
                 _tag: 'CSidebarNavItem',
                 name: '신청',
-                to: `${contextPath}/authority/request`,
+                to: `/authority/request`,
             },
             {
                 _tag: 'CSidebarNavItem',
                 name: '이력',
-                to: `${contextPath}/authority/hist`,
+                to: `/authority/hist`,
             },
         ],
     },
@@ -37,13 +35,13 @@ const _nav = [
     {
         _tag: 'CSidebarNavDropdown',
         name: '결재',
-        route: `${contextPath}/approval`,
+        route: `/approval`,
         icon: 'cil-notes',
         _children: [
             {
                 _tag: 'CSidebarNavItem',
                 name: '목록',
-                to: `${contextPath}/approval/list`,
+                to: `/approval/list`,
             },
         ],
     },
@@ -54,13 +52,13 @@ const _nav = [
     {
         _tag: 'CSidebarNavDropdown',
         name: '매핑',
-        route: `${contextPath}/mapping`,
+        route: `/mapping`,
         icon: 'cil-pencil',
         _children: [
             {
                 _tag: 'CSidebarNavItem',
                 name: '역할&서비스',
-                to: `${contextPath}/mapping/role-services`,
+                to: `/mapping/role-services`,
             },
         ],
     },

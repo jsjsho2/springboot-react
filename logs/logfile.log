@@ -15,3 +15,72 @@
 [INFO ] 2022-03-18 12:20:28.305 [main] SetConfig - INFO SUCCESS
 [ERROR] 2022-03-18 12:20:28.305 [main] SetConfig - ERROR SUCCESS
 [INFO ] 2022-03-18 12:20:28.306 [main] ThreadPoolTaskScheduler - Initializing ExecutorService
+[INFO ] 2022-03-19 21:03:14.561 [main] ReactApplication - Starting ReactApplication on DESKTOP-J3Q3AKI with PID 14360 (C:\Users\JSHPC\Desktop\git\springboot-react\out\production\classes started by JSHPC in C:\Users\JSHPC\Desktop\git\springboot-react)
+[INFO ] 2022-03-19 21:03:14.607 [main] ReactApplication - No active profile set, falling back to default profiles: default
+[INFO ] 2022-03-19 21:03:16.196 [main] TomcatWebServer - Tomcat initialized with port(s): 8080 (http)
+[INFO ] 2022-03-19 21:03:16.229 [main] Http11NioProtocol - Initializing ProtocolHandler ["http-nio-8080"]
+[INFO ] 2022-03-19 21:03:16.230 [main] StandardService - Starting service [Tomcat]
+[INFO ] 2022-03-19 21:03:16.232 [main] StandardEngine - Starting Servlet engine: [Apache Tomcat/9.0.27]
+[INFO ] 2022-03-19 21:03:16.395 [main] [/WAM] - Initializing Spring embedded WebApplicationContext
+[INFO ] 2022-03-19 21:03:16.395 [main] ContextLoader - Root WebApplicationContext: initialization completed in 1692 ms
+[INFO ] 2022-03-19 21:03:16.855 [main] ThreadPoolTaskExecutor - Initializing ExecutorService 'applicationTaskExecutor'
+[WARN ] 2022-03-19 21:03:17.280 [main] FreeMarkerAutoConfiguration - Cannot find template location(s): [classpath:/templates/] (please add some templates, check your FreeMarker configuration, or set spring.freemarker.checkTemplateLocation=false)
+[INFO ] 2022-03-19 21:03:17.357 [main] ThreadPoolTaskScheduler - Initializing ExecutorService 'taskScheduler'
+[INFO ] 2022-03-19 21:03:17.390 [main] Http11NioProtocol - Starting ProtocolHandler ["http-nio-8080"]
+[INFO ] 2022-03-19 21:03:17.550 [main] TomcatWebServer - Tomcat started on port(s): 8080 (http) with context path '/WAM'
+[INFO ] 2022-03-19 21:03:17.554 [main] ReactApplication - Started ReactApplication in 4.232 seconds (JVM running for 10.234)
+[ERROR] 2022-03-19 21:03:38.695 [main] DBConnect - java.sql.SQLRecoverableException: IO 오류: The Network Adapter could not establish the connection
+[INFO ] 2022-03-19 21:03:38.700 [main] ConditionEvaluationReportLoggingListener - 
+
+Error starting ApplicationContext. To display the conditions report re-run your application with 'debug' enabled.
+[ERROR] 2022-03-19 21:03:38.711 [main] SpringApplication - Application run failed
+java.lang.IllegalStateException: Failed to execute CommandLineRunner
+	at org.springframework.boot.SpringApplication.callRunner(SpringApplication.java:787) [spring-boot-2.2.0.RELEASE.jar:2.2.0.RELEASE]
+	at org.springframework.boot.SpringApplication.callRunners(SpringApplication.java:768) [spring-boot-2.2.0.RELEASE.jar:2.2.0.RELEASE]
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:322) [spring-boot-2.2.0.RELEASE.jar:2.2.0.RELEASE]
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1226) [spring-boot-2.2.0.RELEASE.jar:2.2.0.RELEASE]
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1215) [spring-boot-2.2.0.RELEASE.jar:2.2.0.RELEASE]
+	at com.raon.approval.ReactApplication.main(ReactApplication.java:29) [classes/:?]
+Caused by: java.lang.NullPointerException
+	at com.raon.approval.db.DBConnect.getData(DBConnect.java:60) ~[classes/:?]
+	at com.raon.approval.config.SetConfig.batchSetting(SetConfig.java:24) ~[classes/:?]
+	at com.raon.approval.ReactApplication.lambda$commandLineRunner$0(ReactApplication.java:39) ~[classes/:?]
+	at org.springframework.boot.SpringApplication.callRunner(SpringApplication.java:784) ~[spring-boot-2.2.0.RELEASE.jar:2.2.0.RELEASE]
+	... 5 more
+[INFO ] 2022-03-19 21:03:38.726 [main] ThreadPoolTaskScheduler - Shutting down ExecutorService 'taskScheduler'
+[INFO ] 2022-03-19 21:03:38.731 [main] ThreadPoolTaskExecutor - Shutting down ExecutorService 'applicationTaskExecutor'
+[INFO ] 2022-03-19 21:04:48.360 [main] ReactApplication - Starting ReactApplication on DESKTOP-J3Q3AKI with PID 8600 (C:\Users\JSHPC\Desktop\git\springboot-react\out\production\classes started by JSHPC in C:\Users\JSHPC\Desktop\git\springboot-react)
+[INFO ] 2022-03-19 21:04:48.373 [main] ReactApplication - No active profile set, falling back to default profiles: default
+[INFO ] 2022-03-19 21:04:49.865 [main] TomcatWebServer - Tomcat initialized with port(s): 8080 (http)
+[INFO ] 2022-03-19 21:04:49.892 [main] Http11NioProtocol - Initializing ProtocolHandler ["http-nio-8080"]
+[INFO ] 2022-03-19 21:04:49.894 [main] StandardService - Starting service [Tomcat]
+[INFO ] 2022-03-19 21:04:49.895 [main] StandardEngine - Starting Servlet engine: [Apache Tomcat/9.0.27]
+[INFO ] 2022-03-19 21:04:50.035 [main] [/WAM] - Initializing Spring embedded WebApplicationContext
+[INFO ] 2022-03-19 21:04:50.036 [main] ContextLoader - Root WebApplicationContext: initialization completed in 1606 ms
+[INFO ] 2022-03-19 21:04:50.340 [main] ThreadPoolTaskExecutor - Initializing ExecutorService 'applicationTaskExecutor'
+[WARN ] 2022-03-19 21:04:50.631 [main] FreeMarkerAutoConfiguration - Cannot find template location(s): [classpath:/templates/] (please add some templates, check your FreeMarker configuration, or set spring.freemarker.checkTemplateLocation=false)
+[INFO ] 2022-03-19 21:04:50.700 [main] ThreadPoolTaskScheduler - Initializing ExecutorService 'taskScheduler'
+[INFO ] 2022-03-19 21:04:50.730 [main] Http11NioProtocol - Starting ProtocolHandler ["http-nio-8080"]
+[INFO ] 2022-03-19 21:04:50.869 [main] TomcatWebServer - Tomcat started on port(s): 8080 (http) with context path '/WAM'
+[INFO ] 2022-03-19 21:04:50.873 [main] ReactApplication - Started ReactApplication in 3.423 seconds (JVM running for 7.093)
+[INFO ] 2022-03-19 21:05:45.718 [SpringContextShutdownHook] ThreadPoolTaskScheduler - Shutting down ExecutorService 'taskScheduler'
+[INFO ] 2022-03-19 21:05:45.725 [SpringContextShutdownHook] ThreadPoolTaskExecutor - Shutting down ExecutorService 'applicationTaskExecutor'
+[INFO ] 2022-03-19 21:05:53.191 [main] ReactApplication - Starting ReactApplication on DESKTOP-J3Q3AKI with PID 23360 (C:\Users\JSHPC\Desktop\git\springboot-react\out\production\classes started by JSHPC in C:\Users\JSHPC\Desktop\git\springboot-react)
+[INFO ] 2022-03-19 21:05:53.204 [main] ReactApplication - No active profile set, falling back to default profiles: default
+[INFO ] 2022-03-19 21:05:54.345 [main] TomcatWebServer - Tomcat initialized with port(s): 8080 (http)
+[INFO ] 2022-03-19 21:05:54.368 [main] Http11NioProtocol - Initializing ProtocolHandler ["http-nio-8080"]
+[INFO ] 2022-03-19 21:05:54.369 [main] StandardService - Starting service [Tomcat]
+[INFO ] 2022-03-19 21:05:54.369 [main] StandardEngine - Starting Servlet engine: [Apache Tomcat/9.0.27]
+[INFO ] 2022-03-19 21:05:54.499 [main] [/WAM] - Initializing Spring embedded WebApplicationContext
+[INFO ] 2022-03-19 21:05:54.499 [main] ContextLoader - Root WebApplicationContext: initialization completed in 1228 ms
+[INFO ] 2022-03-19 21:05:54.737 [main] ThreadPoolTaskExecutor - Initializing ExecutorService 'applicationTaskExecutor'
+[WARN ] 2022-03-19 21:05:54.952 [main] FreeMarkerAutoConfiguration - Cannot find template location(s): [classpath:/templates/] (please add some templates, check your FreeMarker configuration, or set spring.freemarker.checkTemplateLocation=false)
+[INFO ] 2022-03-19 21:05:55.007 [main] ThreadPoolTaskScheduler - Initializing ExecutorService 'taskScheduler'
+[INFO ] 2022-03-19 21:05:55.030 [main] Http11NioProtocol - Starting ProtocolHandler ["http-nio-8080"]
+[INFO ] 2022-03-19 21:05:55.143 [main] TomcatWebServer - Tomcat started on port(s): 8080 (http) with context path '/WAM'
+[INFO ] 2022-03-19 21:05:55.147 [main] ReactApplication - Started ReactApplication in 2.721 seconds (JVM running for 6.235)
+[INFO ] 2022-03-19 21:09:35.702 [http-nio-8080-exec-1] [/WAM] - Initializing Spring DispatcherServlet 'dispatcherServlet'
+[INFO ] 2022-03-19 21:09:35.702 [http-nio-8080-exec-1] DispatcherServlet - Initializing Servlet 'dispatcherServlet'
+[INFO ] 2022-03-19 21:09:35.709 [http-nio-8080-exec-1] DispatcherServlet - Completed initialization in 7 ms
+[INFO ] 2022-03-19 21:14:00.658 [SpringContextShutdownHook] ThreadPoolTaskScheduler - Shutting down ExecutorService 'taskScheduler'
+[INFO ] 2022-03-19 21:14:00.661 [SpringContextShutdownHook] ThreadPoolTaskExecutor - Shutting down ExecutorService 'applicationTaskExecutor'

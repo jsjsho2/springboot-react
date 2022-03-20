@@ -1,60 +1,63 @@
 import React, {useEffect, useState} from 'react'
-import { useSelector, useDispatch } from 'react-redux'
-import {
-  CCreateElement,
-  CSidebar,
-  CSidebarBrand,
-  CSidebarNav,
-  CSidebarNavDivider,
-  CSidebarNavTitle,
-  CSidebarMinimizer,
-  CSidebarNavDropdown,
-  CSidebarNavItem,
-} from '@coreui/react'
+import {useDispatch, useSelector} from 'react-redux'
+import {CCreateElement, CSidebar, CSidebarBrand, CSidebarNav, CSidebarNavDivider, CSidebarNavDropdown, CSidebarNavItem, CSidebarNavTitle,} from '@coreui/react'
 
-import CIcon from '@coreui/icons-react'
-
-// import navigation from './_nav'
 import userNavigation from '../menus/user'
 import devNavigation from '../menus/developer'
 import adminNavigation from '../menus/admin'
 
+import useStore from '../store/store'
+
 const TheSidebar = (props) => {
-  const [menu, setMenu] = useState([]);
-  const dispatch = useDispatch()
-  const show = useSelector(state => state.sidebarShow)
+    const [menu, setMenu] = useState([]);
+    const dispatch = useDispatch()
+    const show = useSelector(state => state.sidebarShow);
 
-  useEffect(() => {
-    if (props.type === 'user') {
-      setMenu(userNavigation)
-    } else if (props.type === 'developer') {
-      setMenu(devNavigation)
-    } else if (props.type === 'admin') {
-      setMenu(adminNavigation)
-    }
-  }, []);
+    const {contextPath} = useStore();
 
-  return (
-    <CSidebar
-      show={show}
-      onShowChange={(val) => dispatch({type: 'set', sidebarShow: val })}
-    >
-      <CSidebarBrand className="d-md-down-none" to="/WAM/authority/status">
-        APPROVAL MANAGER
-      </CSidebarBrand>
-      <CSidebarNav>
-        <CCreateElement
-          items={menu}
-          components={{
-            CSidebarNavDivider,
-            CSidebarNavDropdown,
-            CSidebarNavItem,
-            CSidebarNavTitle
-          }}
-        />
-      </CSidebarNav>
-    </CSidebar>
-  )
+    useEffect(() => {
+        let nav = [];
+        if (props.type === 'user') {
+            nav = userNavigation;
+        } else if (props.type === 'developer') {
+            nav = devNavigation;
+        } else if (props.type === 'admin') {
+            nav = adminNavigation;
+        }
+
+        Object.entries(nav).forEach(([key, value]) => {
+            if (value.hasOwnProperty('route')) {
+                value.route = `${contextPath}${value.route}`;
+                Object.entries(value._children).forEach(([key, value]) => {
+                    value.to = `${contextPath}${value.to}`;
+                });
+            }
+        });
+
+        setMenu(nav);
+    }, []);
+
+    return (
+        <CSidebar
+            show={show}
+            onShowChange={(val) => dispatch({type: 'set', sidebarShow: val})}
+        >
+            <CSidebarBrand className='d-md-down-none' to={`${contextPath}/authority/status`}>
+                APPROVAL MANAGER
+            </CSidebarBrand>
+            <CSidebarNav>
+                <CCreateElement
+                    items={menu}
+                    components={{
+                        CSidebarNavDivider,
+                        CSidebarNavDropdown,
+                        CSidebarNavItem,
+                        CSidebarNavTitle
+                    }}
+                />
+            </CSidebarNav>
+        </CSidebar>
+    )
 }
 
 export default React.memo(TheSidebar)
