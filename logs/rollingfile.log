@@ -1,1 +1,7 @@
-[WARN ] 2022-03-20 10:55:53.477 [http-nio-8080-exec-8] DefaultHandlerExceptionResolver - Resolved [org.springframework.web.HttpRequestMethodNotSupportedException: Request method 'POST' not supported]
+[INFO ] 2022-03-23 09:09:23.866 [main] ReactApplication - Started ReactApplication in 3.399 seconds (JVM running for 11.647)
+[INFO ] 2022-03-23 09:09:24.180 [main] ThreadPoolTaskScheduler - Initializing ExecutorService
+[INFO ] 2022-03-23 09:13:25.066 [http-nio-8080-exec-1] [/WAM] - Initializing Spring DispatcherServlet 'dispatcherServlet'
+[INFO ] 2022-03-23 09:13:25.067 [http-nio-8080-exec-1] DispatcherServlet - Initializing Servlet 'dispatcherServlet'
+[INFO ] 2022-03-23 09:13:25.075 [http-nio-8080-exec-1] DispatcherServlet - Completed initialization in 8 ms
+[INFO ] 2022-03-23 12:17:44.275 [SpringContextShutdownHook] ThreadPoolTaskScheduler - Shutting down ExecutorService 'taskScheduler'
+[INFO ] 2022-03-23 12:17:44.278 [SpringContextShutdownHook] ThreadPoolTaskExecutor - Shutting down ExecutorService 'applicationTaskExecutor'

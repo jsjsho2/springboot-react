@@ -1,18 +1,22 @@
-import React, {useState, useEffect} from 'react'
-import {useSelector, useDispatch} from 'react-redux'
-import {
-    CHeader,
-    CToggler,
-    CHeaderNav, CDropdownToggle, CImg, CDropdown, CDropdownMenu, CDropdownItem, CBadge,
-} from '@coreui/react'
+import React, {useEffect, useState} from 'react'
+import {useDispatch, useSelector} from 'react-redux'
+import {CDropdown, CDropdownItem, CDropdownMenu, CDropdownToggle, CHeader, CHeaderNav, CToggler,} from '@coreui/react'
 import {AppBreadcrumb} from './index'
 import {UserOutlined} from "@ant-design/icons";
 import Timer from "../components/Timer";
 
 const TheHeader = (props) => {
-    const dispatch = useDispatch()
-    const sidebarShow = useSelector(state => state.sidebarShow)
+    const dispatch = useDispatch();
+    const sidebarShow = useSelector(state => state.sidebarShow);
     const [timeReset, setTimeReset] = useState(false);
+
+    useEffect(() => {
+        const root = document.querySelector('#root');
+
+        root.addEventListener('click', () => {
+            setTimeReset(true);
+        })
+    }, []);
 
     useEffect(() => {
         const root = document.querySelector('#root');

@@ -10,6 +10,8 @@ import {useHistory} from 'react-router-dom';
 import GetData from "../ajax/GetData";
 import SSOCheck from "../views/SSOCheck";
 import * as common from "../components/CommonFunction";
+import useStore from "../store/store";
+import {Helmet} from "react-helmet";
 
 const TheLayout = () => {
 
@@ -19,6 +21,7 @@ const TheLayout = () => {
     const [tokenFalseMessage, setTokenFalseMessage] = useState('');
     const [firstAccess, setFirstAccess] = useState(false);
     let history = useHistory();
+    const {headerNameAndTitle, updateConfig} = useStore();
 
     useEffect(() => {
 
@@ -75,10 +78,20 @@ const TheLayout = () => {
                     setFirstAccess(true);
                 });
         }
+
+        GetData("/REST/setting/getConsoleConfig", {}, '', 'auto')
+            .then(r => {
+                for (let i = 0; i < r.length; i++) {
+                    updateConfig(r[i]);
+                }
+            });
     }, []);
 
     return (
         <div className="c-app c-default-layout">
+            <Helmet>
+                <title>{headerNameAndTitle}</title>
+            </Helmet>
             {ssoCheck ? (
                 <>
                     <TheSidebar type={userAuth}/>

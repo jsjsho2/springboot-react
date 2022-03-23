@@ -51,6 +51,11 @@ const List = () => {
       message.error('[ERROR] 오류가 계속 발생하면 관리자에게 문의바랍니다', 2);
       return false;
     } else {
+      if (data.length === 0 || data === '') {
+        common.showGridNoRowMsg();
+        return false;
+      }
+
       for (let i = 0; i < data.length; i++) {
         const requestInfo = JSON.parse(data[i].REQUEST_INFO);
 

@@ -26,7 +26,7 @@ public class BatchRestController extends CommonFunction {
     @ResponseBody
     public String getBatchList() {
 
-        String sql = "SELECT UUID, NAME, BATCH_TYPE, SQL, FILE_PATH, FILE_NAME, EXE_TYPE, EVERY, SPECIFIC, USAGE, STATUS, MAX(START_DATE) START_DATE, MAX(END_DATE) END_DATE " +
+        String sql = "SELECT UUID, NAME, BATCH_TYPE, SQL, FILE_NAME, EXE_TYPE, EVERY, SPECIFIC, USAGE, STATUS, MAX(START_DATE) START_DATE, MAX(END_DATE) END_DATE " +
                 "FROM ( " +
                 "SELECT A.*, NVL2(B.STATUS, B.STATUS, 3) AS STATUS, B.START_DATE, B.END_DATE " +
                 "FROM WAM_BATCH_INFO A " +
@@ -38,7 +38,7 @@ public class BatchRestController extends CommonFunction {
                 "GROUP BY TARGET_UUID, BATCH_NAME, STATUS, START_DATE) B " +
                 "ON A.UUID = B.TARGET_UUID " +
                 "ORDER BY A.NAME) " +
-                "GROUP BY UUID, NAME, BATCH_TYPE, SQL, FILE_PATH, FILE_NAME, EXE_TYPE, EVERY, SPECIFIC, USAGE, STATUS";
+                "GROUP BY UUID, NAME, BATCH_TYPE, SQL, FILE_NAME, EXE_TYPE, EVERY, SPECIFIC, USAGE, STATUS";
 
         return commonService.stringJsonData(sql);
     }

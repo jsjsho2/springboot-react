@@ -62,6 +62,7 @@ const Request = () => {
             return false;
         } else if (data.length === 0 || data === '') {
             message.warning('요청 가능한 역할이 없습니다', 2);
+            common.showGridNoRowMsg();
             return false;
         } else {
             const data2 = await GetData('/REST/authority/getOnRequest', {}, '', 'auto');
@@ -591,7 +592,7 @@ const Request = () => {
                             </CRow>
 
                             <CRow className="g-3">
-                                <CCollapse show={approvalLineVisible} style={{width:'100%'}}>
+                                <CCollapse show={approvalLineVisible} style={{width: '100%'}}>
                                     <CCard className="mt-3">
                                         <CCardBody>
                                             <div className='approval-detail-content limit-max-width'>

@@ -46,6 +46,11 @@ const Status = () => {
             return false;
         }
 
+        if (data.length === 0 || data === '') {
+            common.showGridNoRowMsg();
+            return false;
+        }
+
         setAuthList(data);
     }
 

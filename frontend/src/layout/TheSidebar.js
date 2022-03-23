@@ -1,6 +1,15 @@
 import React, {useEffect, useState} from 'react'
 import {useDispatch, useSelector} from 'react-redux'
-import {CCreateElement, CSidebar, CSidebarBrand, CSidebarNav, CSidebarNavDivider, CSidebarNavDropdown, CSidebarNavItem, CSidebarNavTitle,} from '@coreui/react'
+import {
+    CCreateElement,
+    CSidebar,
+    CSidebarBrand,
+    CSidebarNav,
+    CSidebarNavDivider,
+    CSidebarNavDropdown,
+    CSidebarNavItem,
+    CSidebarNavTitle,
+} from '@coreui/react'
 
 import userNavigation from '../menus/user'
 import devNavigation from '../menus/developer'
@@ -13,7 +22,7 @@ const TheSidebar = (props) => {
     const dispatch = useDispatch()
     const show = useSelector(state => state.sidebarShow);
 
-    const {contextPath} = useStore();
+    const {contextPath, headerNameAndTitle} = useStore();
 
     useEffect(() => {
         let nav = [];
@@ -43,7 +52,7 @@ const TheSidebar = (props) => {
             onShowChange={(val) => dispatch({type: 'set', sidebarShow: val})}
         >
             <CSidebarBrand className='d-md-down-none' to={`${contextPath}/authority/status`}>
-                APPROVAL MANAGER
+                {headerNameAndTitle}
             </CSidebarBrand>
             <CSidebarNav>
                 <CCreateElement

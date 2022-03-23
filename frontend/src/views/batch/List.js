@@ -42,6 +42,11 @@ const List = () => {
             message.error('[ERROR] 오류가 계속 발생하면 관리자에게 문의바랍니다', 2);
             return false;
         } else {
+            if (data.length === 0 || data === '') {
+                common.showGridNoRowMsg();
+                return false;
+            }
+
             for (let i = 0; i < data.length; i++) {
                 let cron = '';
 
@@ -67,8 +72,6 @@ const List = () => {
                 returnData.push(obj);
             }
         }
-
-        common.showGridNoRowMsg();
 
         setBatchList(returnData);
     }
@@ -140,13 +143,8 @@ const List = () => {
             return;
         }
 
-        if (common.requiredCheck(batchInfo.batchType === 'sql' ? batchInfo.sql : batchInfo.filePath)) {
-            message.warning("배치 SQL or 파일경로/명을 입력해주세요", 2);
-            return;
-        }
-
         if (common.requiredCheck(batchInfo.batchType === 'sql' ? batchInfo.sql : batchInfo.fileName)) {
-            message.warning("배치 SQL or 파일경로/명을 입력해주세요", 2);
+            message.warning("배치 SQL or 파일명을 입력해주세요", 2);
             return;
         }
 
@@ -182,13 +180,8 @@ const List = () => {
             return;
         }
 
-        if (common.requiredCheck(batchInfo.batchType === 'sql' ? batchInfo.sql : batchInfo.filePath)) {
-            message.warning("배치 SQL or 파일경로/명을 입력해주세요", 2);
-            return;
-        }
-
         if (common.requiredCheck(batchInfo.batchType === 'sql' ? batchInfo.sql : batchInfo.fileName)) {
-            message.warning("배치 SQL or 파일경로/명을 입력해주세요", 2);
+            message.warning("배치 SQL or 파일명을 입력해주세요", 2);
             return;
         }
 
@@ -269,7 +262,6 @@ const List = () => {
                 name: data[0].NAME,
                 batchType: data[0].BATCH_TYPE,
                 sql: data[0].SQL || '',
-                filePath: data[0].FILE_PATH || '',
                 fileName: data[0].FILE_NAME || '',
                 exeType: data[0].EXE_TYPE,
                 every: data[0].EVERY || '',
@@ -337,7 +329,6 @@ const List = () => {
                                             name: '',
                                             batchType: 'sql',
                                             sql: '',
-                                            filePath: '',
                                             fileName: '',
                                             exeType: 'every',
                                             every: '',

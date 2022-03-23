@@ -13,7 +13,6 @@ const BatchDetailInfoLayout = (props) => {
         name: props.data.name,
         batchType: props.data.batchType,
         sql: props.data.sql,
-        filePath: props.data.filePath,
         fileName: props.data.fileName,
         exeType: props.data.exeType,
         every: props.data.every,
@@ -118,14 +117,6 @@ const BatchDetailInfoLayout = (props) => {
                 </CCol>
             </CCollapse>
             <CCollapse show={batchTypeVisible[1]} className={'row mb-3'}>
-                <CLabel className="col-sm-2 col-form-label">파일경로</CLabel>
-                <CCol sm={10}>
-                    <CInput type="text" name='filePath' value={inputs.filePath} onChange={(e) => {
-                        onChange(e);
-                    }}/>
-                </CCol>
-            </CCollapse>
-            <CCollapse show={batchTypeVisible[1]} className={'row mb-3'}>
                 <CLabel className="col-sm-2 col-form-label">파일명</CLabel>
                 <CCol sm={10}>
                     <CInput type="text" name='fileName' value={inputs.fileName} onChange={(e) => {
@@ -162,7 +153,7 @@ const BatchDetailInfoLayout = (props) => {
             </CCollapse>
 
             <CCollapse show={exeTypeVisible[1]} className={'row mb-3'}>
-                <CLabel className="col-sm-2 col-form-label">동작시간<br/>(년도지정不)</CLabel>
+                <CLabel className="col-sm-2 col-form-label">동작시간<br/>(년도지정 불가)</CLabel>
                 <CCol sm={10}>
                     <DatePicker name={'specific'} showTime format={dateFormat}
                                 defaultValue={inputs.specific !== '' ? (moment(inputs.specific)) : ('')}

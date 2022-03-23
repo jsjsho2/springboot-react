@@ -7,12 +7,12 @@
     margin: 5px -15px 5px -15px !important;
 }
 
-.g-3.row label{
+.g-3.row label {
     display: block;
 }
 
 .ag-theme-alpine {
-    min-height: 390px;
+    /*min-height: 390px;*/
     margin: 5px 15px 5px 15px !important;
     width: 100%;
 }
@@ -377,6 +377,22 @@
     background: rgba(142, 141, 156, 0.42);
 }
 
-.ant-picker-calendar.ant-picker-calendar-full{
+.ant-picker-calendar.ant-picker-calendar-full {
     width: 100%;
+}
+
+.list-group-accordion {
+    border-left: 4px solid rgb(48, 60, 80);
+}
+
+.list-group-accordion .card-body {
+    padding: 1.25rem 1.25rem 0 1.25rem !important;
+}
+
+.list-group-accordion-pointer {
+    cursor: pointer;
+}
+
+.ant-select-tree-show-line .ant-select-tree-switcher-line-icon {
+    vertical-align: 0.1em !important;
 }

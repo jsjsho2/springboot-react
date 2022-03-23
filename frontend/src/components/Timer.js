@@ -1,69 +1,107 @@
-import React, {useEffect} from 'react';
-import useTimer, {TimerAction} from './UseTimer';
+import React, {useEffect, useRef, useState} from 'react'
 import ReactDOM from "react-dom";
+import {CLink} from '@coreui/react'
 import {Spin} from "antd";
+import useStore from "../store/store";
+
+const STATUS = {
+    STARTED: 'Started',
+    STOPPED: 'Stopped',
+}
 
 const Timer = (props) => {
-    const {totalSeconds, minutes, seconds, timerDispatch} = useTimer(60 * 20);
+
+    const {sessionTime, redirectUrl} = useStore();
+    const [secondsRemaining, setSecondsRemaining] = useState(sessionTime);
+    const [status, setStatus] = useState(STATUS.STOPPED);
+
+    const secondsToDisplay = secondsRemaining % 60;
+    const minutesRemaining = (secondsRemaining - secondsToDisplay) / 60;
+    const minutesToDisplay = minutesRemaining % 60;
+    const hoursToDisplay = (minutesRemaining - minutesToDisplay) / 60;
+
+    const handleRestart = () => {
+        setStatus(STATUS.STOPPED);
+        setSecondsRemaining(sessionTime);
+        setStatus(STATUS.STARTED);
+    }
+
+    useInterval(
+        () => {
+            if (secondsRemaining > 0) {
+                setSecondsRemaining(secondsRemaining - 1)
+            } else {
+                setStatus(STATUS.STOPPED)
+                ReactDOM.render(
+                    <>
+                        <div className="token-checking">
+                            세션이 만료되었습니다.<br/>
+                            새로고침 (토큰 유효 재검증) 혹은 다시 로그인 후 접근 해주세요.<br/>
+                            Redirect URL:&nbsp;
+                            <CLink href={redirectUrl}>
+                                {redirectUrl}
+                            </CLink>
+                            <Spin/>
+                        </div>
+                    </>,
+                    document.getElementById('root'),
+                );
+            }
+        },
+        status === STATUS.STARTED ? 1000 : null,
+    )
 
     useEffect(() => {
-        timerDispatch({
-            type: TimerAction.START
-        });
-    }, []);
+        handleRestart();
+    }, [sessionTime]);
+
     useEffect(() => {
         if (props.signal) {
-            timerDispatch({
-                type: TimerAction.PAUSE
-            });
-
-            setTimeout(() => {
-                timerDispatch({
-                    type: TimerAction.RESET
-                });
-
-                setTimeout(() => {
-                    timerDispatch({
-                        type: TimerAction.START
-                    });
-
-                    props.setSignal(false);
-                }, 100)
-            }, 1000)
+            handleRestart();
+            props.setSignal(false);
         }
     }, [props.signal]);
 
     const styleObj = {
-        color: (totalSeconds <= 60 * 10) ? 'orange' : 'black',
         fontSize: '15px',
         textAlign: 'center'
     }
 
-    if (totalSeconds <= 60 * 5) {
-        styleObj.color = 'red';
-    }
-
-    if (totalSeconds === 0) {
-        ReactDOM.render(
-            <>
-                <div className="token-checking">
-                    세션이 만료되었습니다.<br/>
-                    새로고침 혹은 재로그인을 해주세요. URL: http://xxx.xxx.xxx.xxx
-                    <Spin/>
-                </div>
-            </>,
-            document.getElementById('root'),
-        );
-    }
-
     return (
-        <div className={'time-count'}>
-            <div className="ant-statistic-title">SESSION TIME</div>
-            <p style={styleObj}>
-                <span>{minutes}</span> : <span>{seconds}</span>
-            </p>
+        <div className="App">
+            <div className={'time-count'}>
+                <div className="ant-statistic-title">SESSION TIME</div>
+                <p style={styleObj}>
+                    <span>
+                        {twoDigits(hoursToDisplay)}:
+                        {twoDigits(minutesToDisplay)}:
+                        {twoDigits(secondsToDisplay)}
+                    </span>
+                </p>
+            </div>
         </div>
     )
 }
+
+function useInterval(callback, delay) {
+    const savedCallback = useRef()
+
+    useEffect(() => {
+        savedCallback.current = callback
+    }, [callback])
+
+    useEffect(() => {
+        function tick() {
+            savedCallback.current()
+        }
+
+        if (delay !== null) {
+            let id = setTimeout(tick, delay)
+            return () => clearInterval(id)
+        }
+    }, [delay])
+}
+
+const twoDigits = (num) => String(num).padStart(2, '0')
 
 export default Timer;

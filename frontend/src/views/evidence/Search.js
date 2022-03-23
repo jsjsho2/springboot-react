@@ -37,6 +37,7 @@ const menu = {
     d11: '[배치] 로그 - 상세',
     e0: '[증적] 조회',
     e01: '[증적] 조회 - 상세',
+    f0: '[설정] 콘솔',
 };
 const actions = {
     '0': '조회',
@@ -76,11 +77,12 @@ const Search = () => {
         setInputs(nextInputs)
     };
     const onDatetime = (datetime, value) => {
-        onChange({target: {name: 'startDate', value: value[0]}});
-
-        setTimeout(() => {
-            onChange({target: {name: 'endDate', value: value[1]}});
-        }, 500);
+        const nextInputs = {
+            ...inputs,
+            'startDate': value[0].replaceAll('-', '/'),
+            'endDate': value[1].replaceAll('-', '/'),
+        };
+        setInputs(nextInputs);
     };
 
     function detailVisibleFunc(visible) {
@@ -94,6 +96,11 @@ const Search = () => {
 
         setLoadings(false);
         let returnData = [];
+
+        if (data.length === 0 || data === '') {
+            common.showGridNoRowMsg();
+            return false;
+        }
 
         for (let i = 0; i < data.length; i++) {
             const obj = {
@@ -195,7 +202,7 @@ const Search = () => {
                                             {Object.keys(afterChild).map((key, index2) => {
                                                 return (
                                                     before !== null
-                                                        ? (before[index][key] === afterChild[key]
+                                                        ? (before.length >= (index + 1) && before[index].hasOwnProperty(key) && before[index][key] === afterChild[key]
                                                             ? (<div
                                                                 key={`${index}${index2}`}>&nbsp;&nbsp;{key} : {afterChild[key]}<br/>
                                                             </div>)

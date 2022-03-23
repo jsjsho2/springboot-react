@@ -22,7 +22,6 @@ public class BatchService {
         String name = map.get("name").toString();
         String batchType = map.get("batchType").toString();
         String sql = map.get("sql").toString();
-        String filePath = map.get("filePath").toString();
         String fileName = map.get("fileName").toString();
         String exeType = map.get("exeType").toString();
         String every = map.get("every").toString();
@@ -31,7 +30,7 @@ public class BatchService {
 
         String insertSql = "INSERT INTO WAM_BATCH_INFO " +
                 "(UUID, NAME, BATCH_TYPE, SQL, FILE_PATH, FILE_NAME, EXE_TYPE, EVERY, SPECIFIC, USAGE) VALUES " +
-                "('" + uuid + "', '" + name + "', '" + batchType + "', '" + sql + "', '" + filePath + "', '" + fileName + "', '" + exeType + "', '" + every + "', '" + specific + "', " + usage + ")";
+                "('" + uuid + "', '" + name + "', '" + batchType + "', '" + sql + "', '" + fileName + "', '" + exeType + "', '" + every + "', '" + specific + "', " + usage + ")";
 
         dbConnect.inputData(insertSql);
 
@@ -47,7 +46,6 @@ public class BatchService {
         String name = map.get("name").toString();
         String batchType = map.get("batchType").toString();
         String sql = map.get("sql").toString();
-        String filePath = map.get("filePath").toString();
         String fileName = map.get("fileName").toString();
         String exeType = map.get("exeType").toString();
         String every = map.get("every").toString();
@@ -80,7 +78,6 @@ public class BatchService {
                 "NAME = '" + name + "', " +
                 "BATCH_TYPE = '" + batchType + "', " +
                 "SQL = '" + sql + "', " +
-                "FILE_PATH = '" + filePath + "', " +
                 "FILE_NAME = '" + fileName + "', " +
                 "EXE_TYPE = '" + exeType + "', " +
                 "EVERY = '" + every + "', " +

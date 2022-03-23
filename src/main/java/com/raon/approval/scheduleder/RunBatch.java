@@ -28,6 +28,19 @@ public class RunBatch {
                 "INSERT(UUID, TARGET_UUID, BATCH_NAME, STATUS, START_DATE, END_DATE) " +
                 "VALUES('${uuid}', '${targetUuid}', '${batchName}', ${status}, ${startTime}, ${endTime})";
 
+        String path = dbConnect.getDataOne("SELECT VALUE FROM WAM_CONFIG WHERE MAIN_CATEGORY = 'batch' AND SUB_CATEGORY = 'path' AND KEY = 'batchPath'").get("VALUE").getAsString();
+        String os = System.getProperty("os.name").toLowerCase();
+
+        if(os.indexOf("windows") != -1){
+            if(!path.substring(path.length() -1).equals("\\") ){
+                path += "\\";
+            }
+        }else{
+            if(!path.substring(path.length() -1).equals("/") ){
+                path += "/";
+            }
+        }
+
         for (int i = 0; i < jsonArray.size(); i++) {
             JsonObject obj = jsonArray.get(i).getAsJsonObject();
             String batchLogUuid = UUID.randomUUID().toString();
@@ -52,8 +65,7 @@ public class RunBatch {
 
                 dbConnect.executeSqlBatch(exeSql);
             } else {
-                String filePath = obj.get("FILE_PATH").getAsString();
-                exeSql[0] = filePath + "SsoBatch.jar" + " " + filePath + obj.get("FILE_NAME").getAsString();
+                exeSql[0] = path + "SsoBatch.jar" + " " + path + obj.get("FILE_NAME").getAsString();
                 exeSql[1] = upsertLog;
 
                 dbConnect.executeFileBatch(exeSql);

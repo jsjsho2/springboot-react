@@ -2,9 +2,18 @@ import {AgGridReact} from "@ag-grid-community/react";
 import {ClientSideRowModelModule} from "@ag-grid-community/client-side-row-model";
 import '@ag-grid-community/core/dist/styles/ag-grid.css';
 import '@ag-grid-community/core/dist/styles/ag-theme-alpine.css';
-import React from "react";
+import React, {useEffect} from "react";
+import useStore from "../store/store";
 
 const SetAgGrid = (props) => {
+
+    const {gridRowStack, gridHeight} = useStore();
+
+    useEffect(() => {
+        const gridWrapper = document.querySelector('.ag-root-wrapper-body');
+        gridWrapper.setAttribute('style', `height:${gridHeight * 42 + 48}px`)
+
+    }, [gridHeight])
 
     return (
         <div className="ag-theme-alpine">
@@ -26,7 +35,7 @@ const SetAgGrid = (props) => {
                 suppressRowTransform={true}
                 isRowSelectable={props.hasOwnProperty('isRowSelectable') ? props.isRowSelectable : function () {
                 }}
-                paginationPageSize={10}
+                paginationPageSize={gridRowStack}
                 pagination={true}
                 paginationNumberFormatter={function (params) {
                     return '[' + params.value.toLocaleString() + ']';

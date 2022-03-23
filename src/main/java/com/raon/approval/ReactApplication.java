@@ -36,7 +36,7 @@ public class ReactApplication extends SpringBootServletInitializer implements We
             readYaml.setValue();
 
             SetConfig setConfig = new SetConfig();
-//            setConfig.batchSetting();
+            setConfig.batchSetting();
         };
     }
 
