@@ -3,8 +3,6 @@ package com.raon.approval.db;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.raon.approval.data.FixVariable;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -13,14 +11,19 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class DBConnect {
 
-    private static final Logger logger = LogManager.getLogger(DBConnect.class.getName());
+    private static final java.util.logging.Logger logger = Logger.getLogger(DBConnect.class.getName());
 
     public JsonArray getData(String sql) {
         String[] dbInfo = getDBInfo();
         JsonArray jsonArray = new JsonArray();
+        sql = sql.replaceAll("\\t", " ")
+                .replaceAll("\\n", " ")
+                .replaceAll("\\s\\s+", " ");
 
         try {
             Class.forName(dbInfo[0]);
@@ -54,14 +57,14 @@ public class DBConnect {
             }
 
         } catch (SQLException e) {
-            logger.error(e);
+            logger.log(Level.WARNING, e.toString());
         } finally {
             try {
                 rs.close();
                 pstmt.close();
                 con.close();
             } catch (SQLException e) {
-                logger.error(e);
+                logger.log(Level.WARNING, e.toString());
             }
         }
 
@@ -71,6 +74,10 @@ public class DBConnect {
     public JsonObject getDataOne(String sql) {
         String[] dbInfo = getDBInfo();
         JsonObject jsonObject = new JsonObject();
+
+        sql = sql.replaceAll("\\t", " ")
+                .replaceAll("\\n", " ")
+                .replaceAll("\\s\\s+", " ");
 
         try {
             Class.forName(dbInfo[0]);
@@ -100,14 +107,14 @@ public class DBConnect {
             }
 
         } catch (SQLException e) {
-            logger.error(e);
+            logger.log(Level.WARNING, e.toString());
         } finally {
             try {
                 rs.close();
                 pstmt.close();
                 con.close();
             } catch (SQLException e) {
-                logger.error(e);
+                logger.log(Level.WARNING, e.toString());
             }
         }
 
@@ -117,6 +124,9 @@ public class DBConnect {
     public JsonObject getCount(String sql) {
         String[] dbInfo = getDBInfo();
         JsonObject obj = new JsonObject();
+        sql = sql.replaceAll("\\t", " ")
+                .replaceAll("\\n", " ")
+                .replaceAll("\\s\\s+", " ");
 
         try {
             Class.forName(dbInfo[0]);
@@ -136,14 +146,14 @@ public class DBConnect {
 
             obj.addProperty("count", rs.getInt(1));
         } catch (SQLException e) {
-            logger.error(e);
+            logger.log(Level.WARNING, e.toString());
         } finally {
             try {
                 rs.close();
                 pstmt.close();
                 con.close();
             } catch (SQLException e) {
-                logger.error(e);
+                logger.log(Level.WARNING, e.toString());
             }
         }
 
@@ -155,6 +165,13 @@ public class DBConnect {
         String[] dbInfo = getDBInfo();
         String copyInsertSql = sql[1];
         String result = "2";
+
+        sql[0] = sql[0].replaceAll("\\t", " ")
+                .replaceAll("\\n", " ")
+                .replaceAll("\\s\\s+", " ");
+        sql[1] = sql[1].replaceAll("\\t", " ")
+                .replaceAll("\\n", " ")
+                .replaceAll("\\s\\s+", " ");
 
         sql[1] = copyInsertSql.replace("${status}", result)
                 .replace("${endTime}", "0");
@@ -177,7 +194,7 @@ public class DBConnect {
             result = "0";
         } catch (SQLException e) {
             result = "1";
-            logger.error(e);
+            logger.log(Level.WARNING, e.toString());
             detailLog += e + "\n";
         } finally {
             try {
@@ -185,7 +202,7 @@ public class DBConnect {
                 con.close();
             } catch (SQLException e) {
                 result = "1";
-                logger.error(e);
+                logger.log(Level.WARNING, e.toString());
                 detailLog += e + "\n";
             }
 
@@ -198,7 +215,10 @@ public class DBConnect {
 
             inputData(sql[1]);
 
-            if(sql.length == 3){
+            if (sql.length == 3) {
+                sql[2] = sql[2].replaceAll("\\t", " ")
+                        .replaceAll("\\n", " ")
+                        .replaceAll("\\s\\s+", " ");
                 inputData(sql[2]);
             }
         }
@@ -226,7 +246,7 @@ public class DBConnect {
             }
         } catch (Exception e) {
             result = "1";
-            logger.error(e);
+            logger.log(Level.WARNING, e.toString());
             output.append(e + "\n");
         } finally {
             Date date = new Date();
@@ -238,7 +258,7 @@ public class DBConnect {
                     .replace("${detailLog}", detailLog);
             inputData(sql[1]);
 
-            if(sql.length == 3){
+            if (sql.length == 3) {
                 inputData(sql[2]);
             }
         }
@@ -264,7 +284,7 @@ public class DBConnect {
 
             con.commit();
         } catch (Exception e) {
-            logger.error(e);
+            logger.log(Level.WARNING, e.toString());
             try {
                 con.rollback();
             } catch (SQLException throwables) {
@@ -275,7 +295,7 @@ public class DBConnect {
                 pstmt.close();
                 con.close();
             } catch (SQLException e) {
-                logger.error(e);
+                logger.log(Level.WARNING, e.toString());
             }
         }
     }
@@ -303,7 +323,7 @@ public class DBConnect {
 
             con.commit();
         } catch (Exception e) {
-            logger.error(e);
+            logger.log(Level.WARNING, e.toString());
             try {
                 con.rollback();
             } catch (SQLException throwables) {
@@ -314,7 +334,7 @@ public class DBConnect {
                 pstmt.close();
                 con.close();
             } catch (SQLException e) {
-                logger.error(e);
+                logger.log(Level.WARNING, e.toString());
             }
         }
     }
@@ -344,14 +364,14 @@ public class DBConnect {
                 }
             }
         } catch (SQLException e) {
-            logger.error(e);
+            logger.log(Level.WARNING, e.toString());
         } finally {
             try {
                 rs.close();
                 stmt.close();
                 con.close();
             } catch (SQLException e) {
-                logger.error(e);
+                logger.log(Level.WARNING, e.toString());
             }
         }
 

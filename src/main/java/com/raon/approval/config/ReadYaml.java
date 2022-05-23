@@ -28,6 +28,9 @@ public class ReadYaml {
     @Value("${sso-engine.port}")
     public int ssoPort;
 
+    @Value("${config.profileId}")
+    public String profileId;
+
     public void setValue() {
         FixVariable.setDriver(dbDriver);
         FixVariable.setUrl(dbUrl);
@@ -36,5 +39,6 @@ public class ReadYaml {
         FixVariable.setSsoKey(ssoKey);
         FixVariable.setSsoIp(ssoIp);
         FixVariable.setSsoPort(ssoPort);
+        FixVariable.setProfileId(profileId);
     }
 }

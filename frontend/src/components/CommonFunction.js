@@ -69,6 +69,14 @@ export function showGridNoRowMsg() {
     overlay.appendChild(msg);
 }
 
+export function hideGridNoRowMsg() {
+    const overlay = document.getElementsByClassName('ag-center-cols-viewport')[0];
+
+    for (let i = 1; i < overlay.children.length; i++) {
+        overlay.children[i].remove();
+    }
+}
+
 export function requiredCheck(value) {
     const check = (value === null || value === undefined || value === '' || value.length === 0) ? true : false
     return check;

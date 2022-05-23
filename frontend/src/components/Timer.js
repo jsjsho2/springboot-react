@@ -96,7 +96,7 @@ function useInterval(callback, delay) {
         }
 
         if (delay !== null) {
-            let id = setTimeout(tick, delay)
+            let id = setInterval(tick, delay)
             return () => clearInterval(id)
         }
     }, [delay])

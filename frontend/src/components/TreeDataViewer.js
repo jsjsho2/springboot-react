@@ -32,10 +32,6 @@ const TreeDataViewer = (props) => {
     const [searchValue, setSearchValue] = useState('');
     const [strictly, setStrictly] = useState(true);
 
-    // useEffect(() => {
-    //     console.log(strictly)
-    // }, [strictly]);
-
     const dataList = [];
     const generateList = data => {
         for (let i = 0; i < data.length; i++) {

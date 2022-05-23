@@ -1,5 +1,6 @@
 package com.raon.approval.controller;
 
+import com.raon.approval.data.FixVariable;
 import com.raon.approval.service.ApprovalService;
 import com.raon.approval.service.CommonService;
 import org.springframework.web.bind.annotation.*;
@@ -58,36 +59,31 @@ public class ApprovalRestController {
         return commonService.getCount(sql);
     }
 
-
     @PostMapping(value = "/getApprovalList", produces = "application/text; charset=UTF-8")
     @ResponseBody
-    public String getApprovalList(HttpSession session) {
+    public String getApprovalList(@RequestBody Map map, HttpSession session) {
+
+        return approvalService.getApprovalList(map, session);
+    }
+
+    @PostMapping(value = "/getApprovalHistList", produces = "application/text; charset=UTF-8")
+    @ResponseBody
+    public String getApprovalHistList(@RequestBody Map map, HttpSession session) {
 
         String loginId = session.getAttribute("loginId").toString();
-        String userAuth = session.getAttribute("userAuth").toString();
 
-        String sql = "SELECT A.*, B.NAME FROM " +
-                "(SELECT UUID,SUMMARY,REQUEST_INFO,USER_ID,FLOW,LAST_MODIFIER,RSN,TARGET_ID,STATUS,REQUEST_TIME, 0 TYPE " +
-                "FROM WAM_APPROVAL_INFO " +
-                "WHERE TYPE = 0 " +
-                "AND STATUS = 0 ";
-
-        sql += userAuth.equals("admin") ? "" : "AND TARGET_ID = '" + loginId + "' ";
-
-        sql += "UNION ALL " +
-                "SELECT UUID, LISTAGG(NAME, ',') WITHIN GROUP (ORDER BY RN) SUMMARY, REQUEST_INFO,USER_ID,FLOW,LAST_MODIFIER,RSN,TARGET_ID,STATUS,REQUEST_TIME, 1 TYPE FROM ( " +
-                "SELECT A.*, B.NAME, ROWNUM RN FROM " +
-                "(SELECT DISTINCT UUID, REGEXP_SUBSTR(A.SUMMARY, '[^,]+', 1, LEVEL) CUSTOM, REQUEST_INFO,USER_ID,FLOW,LAST_MODIFIER,RSN,TARGET_ID,STATUS,REQUEST_TIME " +
-                "FROM (SELECT * FROM WAM_APPROVAL_INFO WHERE STATUS = 0 AND TYPE = 1 ";
-
-        sql += (userAuth.equals("admin") ? "" : "AND TARGET_ID = '" + loginId + "'") + ") A ";
-
-        sql += "CONNECT BY LEVEL <= LENGTH(REGEXP_REPLACE(A.SUMMARY, '[^,]+',''))+1) A " +
-                "LEFT JOIN WA3_SERVICE B ON A.CUSTOM = B.ID) " +
-                "GROUP BY UUID,REQUEST_INFO,USER_ID,FLOW,LAST_MODIFIER,RSN,TARGET_ID,STATUS,REQUEST_TIME " +
-                ") A " +
+        String sql = "SELECT A.*, B.NAME " +
+                "FROM WAM_USER_AUTH A " +
                 "LEFT JOIN WA3_USER B ON A.USER_ID = B.ID " +
-                "ORDER BY REQUEST_TIME DESC";
+                "WHERE A.STATUS <> 8 " +
+                "AND TARGET_UUID IS NOT NULL " +
+                "AND A.USER_ID = '" + loginId + "' ";
+
+        if (!map.get("roleName").toString().isEmpty()) {
+            sql += "AND A.ROLE_NAME LIKE '%" + map.get("roleName") + "%' ";
+        }
+
+        sql += "ORDER BY A.LAST_MODIFY_DATE DESC";
 
         return commonService.stringJsonData(sql);
     }
@@ -104,13 +100,33 @@ public class ApprovalRestController {
     public String loadPreset(HttpSession session) {
 
         String loginId = session.getAttribute("loginId").toString();
-        String sql = "SELECT USER_ID, NAME, LISTAGG(LINE, ',') WITHIN GROUP (ORDER BY RN) APPROVAL_LINE, LISTAGG(LINE_WITH_NAME, ',') WITHIN GROUP (ORDER BY RN) APPROVAL_LINE_WITH_NAME FROM ( " +
-                "SELECT A.USER_ID, A.NAME, B.NAME AS LINE, B.NAME ||'('|| A.TARGET_ID ||')' AS LINE_WITH_NAME, ROWNUM RN  FROM  " +
-                "(SELECT DISTINCT NAME, USER_ID, REGEXP_SUBSTR(A.TARGET_ID, '[^,]+', 1, LEVEL) TARGET_ID " +
-                "FROM (SELECT USER_ID, NAME,  APPROVAL_LINE TARGET_ID FROM WAM_APPROVAL_LINE_PRESET WHERE USER_ID ='" + loginId + "') A " +
-                "CONNECT BY LEVEL <= LENGTH(REGEXP_REPLACE(A.TARGET_ID, '[^,]+',''))+1) A " +
-                "LEFT JOIN WA3_USER B ON A.TARGET_ID = B.ID) " +
-                "GROUP BY USER_ID, NAME";
+        String sql = "SELECT USER_ID, NAME, LISTAGG(LINE, ',') WITHIN GROUP (ORDER BY LV) APPROVAL_LINE, LISTAGG(TARGET_ID, ',') WITHIN GROUP (ORDER BY lv) APPROVAL_LINE_ID " +
+                "       FROM (SELECT A.USER_ID, A.NAME, B.NAME || ' ' || D.NAME AS LINE, A.LV, C.PROFILE_VALUE, A.TARGET_ID " +
+                "               FROM (SELECT DISTINCT NAME, USER_ID, REGEXP_SUBSTR(A.TARGET_ID, '[^,]+', 1, LEVEL) TARGET_ID, LEVEL LV " +
+                "                       FROM (SELECT USER_ID, NAME, APPROVAL_LINE TARGET_ID " +
+                "                               FROM WAM_APPROVAL_LINE_PRESET " +
+                "                              WHERE USER_ID ='" + loginId + "') A " +
+                "                    CONNECT BY LEVEL <= LENGTH(REGEXP_REPLACE(A.TARGET_ID, '[^,]+', '')) + 1 " +
+                "                      ORDER BY LEVEL) A " +
+                "               LEFT JOIN WA3_USER B ON A.TARGET_ID = B.ID " +
+                "               LEFT JOIN WA3_USER_PROFILE C ON C.USER_ID = B.ID " +
+                "               LEFT JOIN WAM_POSITION_LIST D ON D.CODE = C.PROFILE_VALUE " +
+                "              ORDER BY A.NAME, A.LV) A " +
+                "       LEFT JOIN (SELECT N_STEP, SELF, SUBSTR(STEP, 5) STEP, POSITION " +
+                "                    FROM (SELECT N_STEP, SELF, STEP, TRIM(REGEXP_SUBSTR(POSITION, '[^,]+', 1, LEVEL)) AS POSITION " +
+                "                            FROM (WITH APPROVAL_STEP AS (SELECT N_STEP, SELF, STEP1, STEP2, STEP3 " +
+                "                                                           FROM WAM_APPROVAL_STEP_CONFIG " +
+                "                                                          WHERE TARGET = (SELECT PROFILE_VALUE " +
+                "                                                                            FROM WA3_USER_PROFILE " +
+                "                                                                           WHERE USER_ID = '" + loginId + "' " +
+                "                                                                             AND PROFILE_ID = '" + FixVariable.getProfileId() + "')) " +
+                "                                SELECT N_STEP, SELF, STEP, POSITION " +
+                "                                  FROM APPROVAL_STEP " +
+                "                               UNPIVOT (POSITION FOR STEP IN (STEP1, STEP2, STEP3))) " +
+                "                         CONNECT BY INSTR(POSITION, ',', 1, LEVEL - 1) > 0) " +
+                "                   GROUP BY N_STEP, SELF, STEP, POSITION) B ON A.PROFILE_VALUE = B.POSITION " +
+                "      WHERE LV = TO_NUMBER(STEP) " +
+                "      GROUP BY USER_ID, NAME";
 
         return commonService.stringJsonData(sql);
     }

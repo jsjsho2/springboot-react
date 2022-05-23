@@ -1,8 +1,6 @@
 import React from 'react';
 import 'antd/dist/antd.css';
 import {Modal} from 'antd';
-import Draggable from 'react-draggable';
-import PropTypes from "prop-types";
 
 const DragModal = (props) => {
 
@@ -21,9 +19,7 @@ const DragModal = (props) => {
                 okText={'확인'}
                 destroyOnClose={true}
                 modalRender={(modal) => (
-                    <Draggable>
-                        <div>{modal}</div>
-                    </Draggable>
+                    <div>{modal}</div>
                 )}
                 footer={props.buttons}
             >
@@ -34,12 +30,3 @@ const DragModal = (props) => {
 };
 
 export default DragModal;
-
-DragModal.propTypes = {
-    type: PropTypes.any,
-    visibleFunc: PropTypes.any,
-    visible: PropTypes.any,
-    title: PropTypes.any,
-    content: PropTypes.any,
-    buttons: PropTypes.any,
-};

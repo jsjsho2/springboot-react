@@ -119,11 +119,6 @@
     cursor: row-resize;
 }
 
-.preset-name-div input {
-    float: right;
-    width: 240px;
-}
-
 .show-cell {
     background: white;
     border-left: 1px solid lightgrey !important;
@@ -151,11 +146,11 @@
 }
 
 .approval-detail-table .title {
-    background: #e7e7e7;
+    background: whitesmoke;
 }
 
 .approval-detail-table .value {
-    background: whitesmoke;
+    background: white;
 }
 
 .approval-flow-table {
@@ -200,6 +195,19 @@
     position: relative;
     bottom: 3px;
     color: blue;
+}
+
+.treeview-add-line {
+    background: #6f7ed4;
+    width: 33px;
+    border: none;
+    position: relative;
+    bottom: 0px;
+    color: white;
+    line-height: 17px;
+    border-radius: 8px;
+    font-size: 13px;
+    margin-left: 4px;
 }
 
 .site-tree-search-value {
@@ -273,9 +281,14 @@
     transform: scale(1.3);
 }
 
+.ag-react-container .anticon.anticon-delete {
+    transform: scale(1.2);
+}
+
 .ag-react-container .table-in-button {
     padding: 0px 10px 0px 10px;
     border-radius: 5px;
+    color: white;
 }
 
 .anticon.timeline-clock-icon {
@@ -395,4 +408,63 @@
 
 .ant-select-tree-show-line .ant-select-tree-switcher-line-icon {
     vertical-align: 0.1em !important;
+}
+
+.ant-tree-checkbox-disabled > .ant-tree-checkbox-inner, .ant-select-tree-checkbox-disabled > .ant-select-tree-checkbox-inner {
+    display: none;
+}
+
+.approval-mapping-row {
+    border: 1px solid #b9b8b8;
+    border-radius: 5px;
+    padding: 10px 15px 10px 15px;
+    transform: scaleX(0.95);
+}
+
+.approval-mapping-function1 {
+    float: right;
+    margin: 25px 5px 5px 0px;
+}
+
+.approval-mapping-function2 {
+    float: right;
+    margin: 5px 0;
+}
+
+.approval-mapping-function2 label {
+    display: flex !important;
+}
+
+.flex-checkboxes .ant-checkbox-group-item {
+    margin-right: 8px;
+    display: flex;
+}
+
+.ant-upload-text-icon {
+    display: none !important;
+}
+
+.ant-upload-draggable-list-item {
+    border: 1px solid #b5b5b5;
+    border-radius: 5px;
+    padding: 2px 0px 7px 0;
+    margin-left: 8px;
+    margin-bottom: 5px;
+}
+
+.approval-line-manager-wrapper {
+    border: 1px solid #d9d9d9;
+    border-radius: 5px;
+    padding: 10px;
+    margin-left: 7px;
+    margin-bottom: 8px;
+    text-align: center;
+    font-size: 13px;
+}
+
+.approval-line-manager-div {
+    border: 1px solid #d9d9d9;
+    border-radius: 5px;
+    padding: 5px;
+    font-size: 16px;
 }

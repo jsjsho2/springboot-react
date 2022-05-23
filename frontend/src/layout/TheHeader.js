@@ -18,14 +18,6 @@ const TheHeader = (props) => {
         })
     }, []);
 
-    useEffect(() => {
-        const root = document.querySelector('#root');
-
-        root.addEventListener('click', () => {
-            setTimeReset(true);
-        })
-    }, []);
-
     const toggleSidebar = () => {
         const val = [true, 'responsive'].includes(sidebarShow) ? false : 'responsive'
         dispatch({type: 'set', sidebarShow: val})

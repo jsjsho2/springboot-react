@@ -1,36 +1,42 @@
-import React, {useEffect, useState} from 'react'
+import React, {useEffect, useRef, useState} from 'react'
 import {CCard, CCardBody, CCardHeader, CCol, CInput, CLabel, CRow,} from '@coreui/react'
 import * as common from '../../components/CommonFunction';
-
+import {DownloadOutlined} from '@ant-design/icons';
 import Modal from "../../components/Modal";
 import GetData from "../../ajax/GetData";
-import {AutoComplete, Button, DatePicker, Tag} from "antd";
+import {AutoComplete, Button, DatePicker, Menu, Tag, Dropdown} from "antd";
 import moment from 'moment';
 import SetAgGrid from "../../components/SetAgGrid";
 import CustomButton from "../../components/CustomButton";
+import axios from "axios";
 
 const {RangePicker} = DatePicker;
+const contextPath = '/WAM';
 
 const menu = {
-    a0: '[권한] 상태',
-    a01: '[권한] 상태 - 역할&서비스 구조',
+    a0: '[권한] 목록',
+    a01: '[권한] 목록 - 역할&서비스 구조',
     a02: '[권한] 상태 - 반환',
     a1: '[권한] 신청',
     a11: '[권한] 신청 - 역할&서비스 구조',
     a2: '[권한] 이력',
-    a21: '[권한] 이력 - 상세',
-    a22: '[권한] 이력 - 상신취소',
+    a21: '[권한] 이력 - 역할&서비스 구조',
+    // a22: '[권한] 이력 - 상신취소',
     a3: '[권한] 회수',
     a31: '[권한] 회수 - 역할&서비스 구조',
     a32: '[권한] 회수 - 회수',
-    b0: '[결재] 목록',
-    b01: '[결재] 목록 - 상세',
+    b0: '[결재] 결재 목록',
+    b01: '[결재] 결재 목록 - 상세',
+    b1: '[결재] 기안 목록',
+    b11: '[결재] 기안 목록 - 상세',
+    b12: '[결재] 기안 목록 - 상신취소',
     c0: '[매핑] 조직&역할 (결재)',
     c01: '[매핑] 조직&역할 (결재) - 상세',
     c2: '[매핑] 조직&역할 (기본)',
     c21: '[매핑] 조직&역할 (기본) - 상세',
     c1: '[매핑] 역할&서비스',
     c11: '[매핑] 역할&서비스 - 역할&서비스 구조',
+    c3: '[매핑] 직위&결재선',
     d0: '[배치] 목록',
     d01: '[배치] 목록 - 상세',
     d1: '[배치] 로그',
@@ -39,6 +45,7 @@ const menu = {
     e01: '[증적] 조회 - 상세',
     f0: '[설정] 콘솔',
 };
+
 const actions = {
     '0': '조회',
     '1': '등록',
@@ -50,14 +57,18 @@ const actions = {
     '7': '권한반환',
     '8': '권한회수',
     '9': '상신취소',
+    '10': '다운로드'
 };
 
 const results = [<Tag key={'tag1'} color="blue">성공</Tag>, <Tag key={'tag2'} color="red">실패</Tag>];
 
 const Search = () => {
+    const [getDataSignal, setGetDataSignal] = useState(false);
     const [detail, setDetail] = useState(undefined);
     const [loadings, setLoadings] = useState(true);
     const [detailVisible, setDetailVisible] = useState(false);
+    const [menuObj, setMenuObj] = useState([]);
+
     const [inputs, setInputs] = useState({
         name: '',
         action: '',
@@ -66,6 +77,7 @@ const Search = () => {
         endDate: common.setDefaultDateFrom(1),
     });
     const [evidenceList, setEvidenceList] = useState([]);
+    const btnRef = useRef(null);
 
     const onChange = (e) => {
         const {name, value} = e.target;
@@ -85,172 +97,230 @@ const Search = () => {
         setInputs(nextInputs);
     };
 
-    function detailVisibleFunc(visible) {
-        setDetailVisible(visible);
-    }
-
-    async function getData() {
-        setLoadings(true);
-
-        const data = await GetData("/REST/evidence/search", inputs, '', 'auto');
-
-        setLoadings(false);
-        let returnData = [];
-
-        if (data.length === 0 || data === '') {
-            common.showGridNoRowMsg();
-            return false;
-        }
-
-        for (let i = 0; i < data.length; i++) {
-            const obj = {
-                uuid: data[i].UUID,
-                name: data[i].NAME,
-                action: actions[data[i].ACTION],
-                menu: menu[data[i].MENU],
-                result: results[parseInt(data[i].RESULT)],
-                actionDate: common.numberDateToString(data[i].ACTION_DATE),
-            };
-
-            returnData.push(obj)
-        }
-
-        setEvidenceList(returnData);
-    }
-
     useEffect(() => {
-        getData();
+        if (!getDataSignal) {
+            common.showGridLoadingMsg();
+        } else {
+            common.hideGridLoadingMsg();
+        }
+    }, [getDataSignal]);
+    useEffect(() => {
+        fn.getData();
+
+        const menuArr = (Object.keys(menu).map(function (key) {
+            const obj = {
+                value: menu[key],
+                data: key
+            }
+
+            return obj;
+        }))
+
+        setMenuObj(menuArr)
     }, []);
 
-    async function details(uuid) {
-        const detail = await GetData("/REST/evidence/searchOne", {uuid: uuid}, '', 'auto');
+    const fn = {
+        visible: {
+            detail: visible => {
+                setDetailVisible(visible);
+            }
+        },
+        getData: async () => {
+            setGetDataSignal(false);
+            setLoadings(true);
 
-        const target = detail[0].TARGET === null ? null : JSON.parse(detail[0].TARGET);
-        const before = detail[0].BEFORE === null ? null : JSON.parse(detail[0].BEFORE);
-        const after = detail[0].AFTER === null ? null : JSON.parse(detail[0].AFTER);
+            const data = await GetData("/REST/evidence/search", inputs, '', 'auto');
 
-        if (detail[0].ACTION === '5') {
-            setDetail(
-                <>
-                    <span style={{color: '#767676'}}>ID:</span> {detail[0].USER_ID}<br/>
-                    <span style={{color: '#767676'}}>이름:</span> {detail[0].NAME}<br/>
-                    <span style={{color: '#767676'}}>IP:</span> {detail[0].USER_IP}<br/>
-                    <span style={{color: '#767676'}}>메뉴:</span> {menu[detail[0].MENU]}<br/>
-                    <span style={{color: '#767676'}}>행위:</span> {actions[detail[0].ACTION]}<br/>
-                </>
+            setGetDataSignal(true);
+            setLoadings(false);
+            let returnData = [];
+
+            if (data.length === 0 || data === '') {
+                common.showGridNoRowMsg();
+            } else {
+                common.hideGridNoRowMsg();
+            }
+
+            for (let i = 0; i < data.length; i++) {
+                const obj = {
+                    uuid: data[i].UUID,
+                    name: data[i].NAME,
+                    action: actions[data[i].ACTION],
+                    menu: menu[data[i].MENU],
+                    result: results[parseInt(data[i].RESULT)],
+                    actionDate: common.numberDateToString(data[i].ACTION_DATE),
+                };
+
+                returnData.push(obj)
+            }
+
+            setEvidenceList(returnData);
+        },
+        excelMenus: (
+            <Menu>
+                <Menu.Item key="0">
+                    <a onClick={() => fn.excelDown('xlsx')}>.xlsx</a>
+                </Menu.Item>
+            </Menu>
+        ),
+        excelDown: async type => {
+            axios({
+                method: 'POST',
+                url: `${contextPath}/excelDown`,
+                responseType: 'blob',
+                headers: {
+                    "Content-Type": "application/json",
+                    "Access-Control-Allow-Origin": "*",
+                },
+                data: {type: type, page: 'evidence', ...inputs}
+            }).then(response => {
+                const dateTime = new Date();
+                const date = ("0" + (dateTime.getDate())).slice(-2);
+                const month = ("0" + (dateTime.getMonth() + 1)).slice(-2);
+                const year = dateTime.getFullYear();
+                const hours = dateTime.getHours();
+                const minutes = dateTime.getMinutes();
+
+                const url = window.URL.createObjectURL(new Blob([response.data], {type: response.headers['content-type']}));
+                const link = document.createElement('a');
+                link.href = url;
+                link.setAttribute('download', `${year}${month}${date}${hours}${minutes}증적.xlsx`);
+                document.body.appendChild(link);
+                link.click();
+            })
+        },
+        Details: props => {
+            async function event(uuid) {
+                const detail = await GetData("/REST/evidence/searchOne", {uuid: uuid}, '', 'auto');
+
+                const target = detail[0].TARGET === null ? null : JSON.parse(detail[0].TARGET);
+                const before = detail[0].BEFORE === null ? null : JSON.parse(detail[0].BEFORE);
+                const after = detail[0].AFTER === null ? null : JSON.parse(detail[0].AFTER);
+
+                if (detail[0].ACTION === '5') {
+                    setDetail(
+                        <>
+                            <span style={{color: '#767676'}}>ID:</span> {detail[0].USER_ID}<br/>
+                            <span style={{color: '#767676'}}>이름:</span> {detail[0].NAME}<br/>
+                            <span style={{color: '#767676'}}>IP:</span> {detail[0].USER_IP}<br/>
+                            <span style={{color: '#767676'}}>메뉴:</span> {menu[detail[0].MENU]}<br/>
+                            <span style={{color: '#767676'}}>행위:</span> {actions[detail[0].ACTION]}<br/>
+                        </>
+                    )
+
+                } else {
+                    setDetail(
+                        <>
+                            <span style={{color: '#767676'}}>ID:</span> {detail[0].USER_ID}<br/>
+                            <span style={{color: '#767676'}}>이름:</span> {detail[0].NAME}<br/>
+                            <span style={{color: '#767676'}}>IP:</span> {detail[0].USER_IP}<br/>
+                            <span style={{color: '#767676'}}>메뉴:</span> {menu[detail[0].MENU]}<br/>
+                            <span style={{color: '#767676'}}>행위:</span> {actions[detail[0].ACTION]}<br/>
+                            {target && typeof target === 'object' && detail[0].ACTION === '0'
+                                ? (<><span style={{color: '#767676'}}>검색조건:</span> &#123;<br/>
+                                    {Object.keys(target).map((key, index) => {
+                                        return (<div key={index}>&nbsp;&nbsp;{key} : {target[key]}<br/></div>)
+                                    })}
+                                    &#125;<br/>
+                                </>)
+                                : (target && typeof target === 'object'
+                                    ? (<><span style={{color: '#767676'}}>대상:</span> &#123;<br/>
+                                        {Object.keys(target).map((key, index) => {
+                                            return (<div key={index}>&nbsp;&nbsp;{key} : {target[key]}<br/></div>)
+                                        })}
+                                        &#125;<br/>
+                                    </>)
+                                    : (target && <><span style={{color: '#767676'}}>대상:</span> {target.TARGET}<br/></>))
+                            }
+                            {before && <><span style={{color: '#767676'}}>BEFORE:</span>
+                                {<> &#91;<br/>
+                                    {before.map((beforeChild, index) => {
+                                            return (
+                                                <>
+                                                    &#123;
+                                                    {Object.keys(beforeChild).map((key, index2) => {
+                                                        return (
+                                                            after !== null
+                                                                ? (after.length >= (index + 1) && after[index].hasOwnProperty(key) && after[index][key] === beforeChild[key]
+                                                                    ? (<div
+                                                                        key={`${index}${index2}`}>&nbsp;&nbsp;{key} : {beforeChild[key]}<br/>
+                                                                    </div>)
+                                                                    : (<div key={`${index}${index2}`}
+                                                                            style={{color: '#d70a25'}}>&nbsp;&nbsp;{key} : {beforeChild[key]}<br/>
+                                                                    </div>)
+                                                                )
+                                                                : (<div
+                                                                    key={`${index}${index2}`}>&nbsp;&nbsp;{key} : {beforeChild[key]}<br/>
+                                                                </div>)
+                                                        )
+                                                    })}
+                                                    &#125;&#44;
+                                                </>
+                                            )
+                                        }
+                                    )}
+                                    &#93;<br/>
+                                </>}</>}
+                            {after && <><span style={{color: '#767676'}}>AFTER:</span>
+                                {<> &#91;<br/>
+                                    {after.map((afterChild, index) => {
+                                            return (
+                                                <>
+                                                    &#123;
+                                                    {Object.keys(afterChild).map((key, index2) => {
+                                                        return (
+                                                            before !== null
+                                                                ? (before.length >= (index + 1) && before[index].hasOwnProperty(key) && before[index][key] === afterChild[key]
+                                                                    ? (<div
+                                                                        key={`${index}${index2}`}>&nbsp;&nbsp;{key} : {afterChild[key]}<br/>
+                                                                    </div>)
+                                                                    : (<div key={`${index}${index2}`}
+                                                                            style={{color: '#d70a25'}}>&nbsp;&nbsp;{key} : {afterChild[key]}<br/>
+                                                                    </div>)
+                                                                )
+                                                                : (
+                                                                    <div
+                                                                        key={`${index}${index2}`}>&nbsp;&nbsp;{key} : {afterChild[key]}<br/>
+                                                                    </div>)
+                                                        )
+                                                    })}
+                                                    &#125;&#44;
+                                                </>
+                                            )
+                                        }
+                                    )}
+                                    &#93;<br/>
+                                </>}</>}
+                        </>
+                    );
+                }
+
+                fn.visible.detail(true)
+            }
+
+            return (
+                <CustomButton
+                    event={event}
+                    data={props.value}
+                    icon={'cil-search'}
+                />
             )
-
-        } else {
-            setDetail(
-                <>
-                    <span style={{color: '#767676'}}>ID:</span> {detail[0].USER_ID}<br/>
-                    <span style={{color: '#767676'}}>이름:</span> {detail[0].NAME}<br/>
-                    <span style={{color: '#767676'}}>IP:</span> {detail[0].USER_IP}<br/>
-                    <span style={{color: '#767676'}}>메뉴:</span> {menu[detail[0].MENU]}<br/>
-                    <span style={{color: '#767676'}}>행위:</span> {actions[detail[0].ACTION]}<br/>
-                    {target && typeof target === 'object' && detail[0].ACTION === '0'
-                        ? (<><span style={{color: '#767676'}}>검색조건:</span> &#123;<br/>
-                            {Object.keys(target).map((key, index) => {
-                                return (<div key={index}>&nbsp;&nbsp;{key} : {target[key]}<br/></div>)
-                            })}
-                            &#125;<br/>
-                        </>)
-                        : (target && typeof target === 'object'
-                            ? (<><span style={{color: '#767676'}}>대상:</span> &#123;<br/>
-                                {Object.keys(target).map((key, index) => {
-                                    return (<div key={index}>&nbsp;&nbsp;{key} : {target[key]}<br/></div>)
-                                })}
-                                &#125;<br/>
-                            </>)
-                            : (target && <><span style={{color: '#767676'}}>대상:</span> {target.TARGET}<br/></>))
-                    }
-                    {before && <><span style={{color: '#767676'}}>BEFORE:</span>
-                        {<> &#91;<br/>
-                            {before.map((beforeChild, index) => {
-                                    return (
-                                        <>
-                                            &#123;
-                                            {Object.keys(beforeChild).map((key, index2) => {
-                                                return (
-                                                    after !== null
-                                                        ? (after[index][key] === beforeChild[key]
-                                                            ? (<div
-                                                                key={`${index}${index2}`}>&nbsp;&nbsp;{key} : {beforeChild[key]}<br/>
-                                                            </div>)
-                                                            : (<div key={`${index}${index2}`}
-                                                                    style={{color: '#d70a25'}}>&nbsp;&nbsp;{key} : {beforeChild[key]}<br/>
-                                                            </div>)
-                                                        )
-                                                        : (<div
-                                                            key={`${index}${index2}`}>&nbsp;&nbsp;{key} : {beforeChild[key]}<br/>
-                                                        </div>)
-                                                )
-                                            })}
-                                            &#125;&#44;
-                                        </>
-                                    )
-                                }
-                            )}
-                            &#93;<br/>
-                        </>}</>}
-                    {after && <><span style={{color: '#767676'}}>AFTER:</span>
-                        {<> &#91;<br/>
-                            {after.map((afterChild, index) => {
-                                    return (
-                                        <>
-                                            &#123;
-                                            {Object.keys(afterChild).map((key, index2) => {
-                                                return (
-                                                    before !== null
-                                                        ? (before.length >= (index + 1) && before[index].hasOwnProperty(key) && before[index][key] === afterChild[key]
-                                                            ? (<div
-                                                                key={`${index}${index2}`}>&nbsp;&nbsp;{key} : {afterChild[key]}<br/>
-                                                            </div>)
-                                                            : (<div key={`${index}${index2}`}
-                                                                    style={{color: '#d70a25'}}>&nbsp;&nbsp;{key} : {afterChild[key]}<br/>
-                                                            </div>)
-                                                        )
-                                                        : (
-                                                            <div key={`${index}${index2}`}>&nbsp;&nbsp;{key} : {afterChild[key]}<br/>
-                                                            </div>)
-                                                )
-                                            })}
-                                            &#125;&#44;
-                                        </>
-                                    )
-                                }
-                            )}
-                            &#93;<br/>
-                        </>}</>}
-                </>
-            );
         }
+    };
 
-        detailVisibleFunc(true)
+    const grid = {
+        colOption: [
+            {headerName: "일시", field: "actionDate"},
+            {headerName: "이름", field: "name"},
+            {headerName: "메뉴", field: "menu"},
+            {headerName: "행위", field: "action"},
+            {headerName: "상세보기", field: "uuid", cellRenderer: 'details'},
+        ]
     }
 
-    const Details = (props) => {
-
-        return (
-            <CustomButton
-                event={details}
-                data={props.value}
-                icon={'cil-search'}
-            />
-        )
-    };
-
     const frameworkComponents = {
-        details: Details
+        details: fn.Details
     };
-
-    const colOption = [
-        {headerName: "일시", field: "actionDate"},
-        {headerName: "이름", field: "name"},
-        {headerName: "메뉴", field: "menu"},
-        {headerName: "행위", field: "action"},
-        {headerName: "상세보기", field: "uuid", cellRenderer: 'details'},
-    ];
 
     return (
         <>
@@ -261,7 +331,11 @@ const Search = () => {
                             <strong>조회</strong>
                         </CCardHeader>
                         <CCardBody>
-                            <CRow className="g-3">
+                            <CRow className="g-3" onKeyPress={e => {
+                                if (e.key === 'Enter') {
+                                    btnRef.current.dispatchEvent(new Event('click', {bubbles: true}));
+                                }
+                            }}>
                                 <CCol sm={2}>
                                     <CLabel>유저명</CLabel>
                                     <CInput
@@ -270,7 +344,6 @@ const Search = () => {
                                         className='ant-input'
                                     />
                                 </CCol>
-
                                 <CCol sm={2}>
                                     <CLabel>메뉴</CLabel>
                                     <AutoComplete
@@ -278,19 +351,9 @@ const Search = () => {
                                         onChange={(value, target) => {
                                             onChange({target: {name: 'menu', value: target.data}});
                                         }}
-                                        options={[
-                                            {value: '전체', data: ''},
-                                            {value: '권한 상태', data: 'a0'},
-                                            {value: '권한 신청', data: 'a1'},
-                                            {value: '권한 이력', data: 'a2'},
-                                            {value: '권한 회수', data: 'a3'},
-                                            {value: '결재 목록', data: 'b0'},
-                                            {value: '매핑 조직&역할', data: 'c0'},
-                                            {value: '매핑 역할&서비스', data: 'c1'},
-                                            {value: '배치 목록', data: 'd0'},
-                                            {value: '배치 로그', data: 'd1'},
-                                            {value: '증적 조회', data: 'e0'},
-                                        ]}
+                                        options={
+                                            menuObj
+                                        }
                                         placeholder="focus..."
                                         filterOption={(inputValue, option) =>
                                             option.value.toUpperCase().indexOf(inputValue.toUpperCase()) !== -1
@@ -333,16 +396,19 @@ const Search = () => {
                                 </CCol>
 
                                 <CCol className="function-btns" sm={2}>
-                                    <Button type='primary' loading={loadings} onClick={getData}>
+                                    <Button type='primary' loading={loadings} onClick={fn.getData} ref={btnRef}>
                                         검색
                                     </Button>
+                                    <Dropdown overlay={fn.excelMenus} trigger={['click']}>
+                                        <Button type="primary" icon={<DownloadOutlined/>}/>
+                                    </Dropdown>
                                 </CCol>
                             </CRow>
 
                             <CRow className="g-3">
                                 <SetAgGrid data={evidenceList}
                                            frameworkComponents={frameworkComponents}
-                                           colOption={colOption}
+                                           colOption={grid.colOption}
                                 />
                             </CRow>
                         </CCardBody>
@@ -352,7 +418,7 @@ const Search = () => {
 
             <Modal
                 visible={detailVisible}
-                visibleFunc={detailVisibleFunc}
+                visibleFunc={fn.visible.detail}
                 title='증적 상세'
                 content={detail}
             />

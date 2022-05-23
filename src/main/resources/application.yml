@@ -14,5 +14,5 @@ server:
   servlet:
     context-path: /WAM
 
-logging:
-  config: classpath:log4j.yml
+config:
+  profileId: 43

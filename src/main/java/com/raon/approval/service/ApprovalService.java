@@ -9,6 +9,7 @@ import com.google.gson.JsonParser;
 import com.raon.approval.common.CommonFunction;
 import com.raon.approval.db.DBConnect;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RequestBody;
 
 import javax.servlet.http.HttpSession;
 import java.util.*;
@@ -132,7 +133,7 @@ public class ApprovalService {
                     }
 
                     break;
-                } else if (flow.get("id").equals(targetId)) {
+                } else if (flow.get("id").getAsString().equals(targetId)) {
                     flow.addProperty("id", loginId);
                     flow.addProperty("name", loginName);
                     flow.addProperty("status", status);
@@ -177,7 +178,7 @@ public class ApprovalService {
         dbConnect.inputData(updateApprovalInfo);
 
         if (type == 0) {
-            updateUserAuthority("TARGET_UUID", uuid, nowDate, status);
+            updateUserAuthority("TARGET_UUID", uuid, nowDate, nextStatus);
         }
 
         return beforeData.toString();
@@ -208,7 +209,7 @@ public class ApprovalService {
         String uaclNextval = "SELECT WA3_SEQ_UACL.NEXTVAL FROM DUAL";
         String incrementSeq = "ALTER SEQUENCE WA3_SEQ_UACL INCREMENT BY ${size}";
         String sql = "MERGE INTO WA3_UACL USING DUAL ON (SERVICE_ID = '${serviceId}' AND TARGET_TYPE = 5 AND TARGET_ID = '${targetId}') " +
-                "WHEN MATCHED THEN UPDATE SET  " +
+                "WHEN MATCHED THEN UPDATE SET " +
                 "MODIFY_TIME=${fromDate} " +
                 "WHEN NOT MATCHED THEN " +
                 "INSERT(SEQ_UACL, SERVICE_ID, ASSIGNOR, TARGET_TYPE, TARGET_ID, IS_USE, PERMISSION, PARENT_DN, VALID_FROM, VALID_TO, CREATE_TIME, MODIFY_TIME) " +
@@ -286,5 +287,56 @@ public class ApprovalService {
                 .replace("${status}", String.valueOf(status));
 
         dbConnect.inputData(sql);
+    }
+
+    public String getApprovalList(Map map, HttpSession session) {
+        String loginId = session.getAttribute("loginId").toString();
+        String userAuth = session.getAttribute("userAuth").toString();
+
+        String historySql = "SELECT * FROM WAM_EVIDENCE WHERE MENU = 'b0' AND USER_ID = '" + loginId + "' AND ACTION = 6 ORDER BY ACTION_DATE DESC";
+        JsonArray historyJA = dbConnect.getData(historySql);
+        String historyUuids = "";
+
+        for (int i = 0; i < historyJA.size(); i++) {
+            JsonObject jo = historyJA.get(i).getAsJsonObject();
+            JsonObject tjo = (JsonObject) new JsonParser().parse(jo.get("TARGET").getAsString());
+            String targetUuid = tjo.get("uuid").getAsString();
+            historyUuids += (i == 0 ? "" : ",") + "'" + targetUuid + "'";
+        }
+
+        String sql = "SELECT A.*, B.NAME " +
+                "       FROM (SELECT UUID,SUMMARY,REQUEST_INFO,USER_ID,FLOW,LAST_MODIFIER,RSN,TARGET_ID,STATUS,REQUEST_TIME, 0 TYPE " +
+                "               FROM WAM_APPROVAL_INFO " +
+                "               WHERE TYPE = 0 " +
+                "                 AND STATUS = 0 ";
+
+        sql += userAuth.equals("admin") ? "" : "AND TARGET_ID = '" + loginId + "' ";
+
+        sql += "                UNION ALL " +
+                "              SELECT UUID, LISTAGG(NAME, ',') WITHIN GROUP (ORDER BY RN) SUMMARY, REQUEST_INFO,USER_ID,FLOW,LAST_MODIFIER,RSN,TARGET_ID,STATUS,REQUEST_TIME, 1 TYPE " +
+                "                FROM (SELECT A.*, B.NAME, ROWNUM RN " +
+                "                        FROM (SELECT DISTINCT UUID, REGEXP_SUBSTR(A.SUMMARY, '[^,]+', 1, LEVEL) CUSTOM, REQUEST_INFO,USER_ID,FLOW,LAST_MODIFIER,RSN,TARGET_ID,STATUS,REQUEST_TIME " +
+                "                                FROM (SELECT * FROM WAM_APPROVAL_INFO WHERE STATUS = 0 AND TYPE = 1 ";
+
+        sql += (userAuth.equals("admin") ? "" : "AND TARGET_ID = '" + loginId + "'");
+        sql += "                              ) A " +
+                "                     CONNECT BY LEVEL <= LENGTH(REGEXP_REPLACE(A.SUMMARY, '[^,]+',''))+1) A " +
+                "                LEFT JOIN WA3_SERVICE B ON A.CUSTOM = B.ID) " +
+                "         GROUP BY UUID,REQUEST_INFO,USER_ID,FLOW,LAST_MODIFIER,RSN,TARGET_ID,STATUS,REQUEST_TIME ";
+
+        if (!historyUuids.equals("")) {
+            sql += "            UNION ALL " +
+                    "          SELECT UUID,SUMMARY,REQUEST_INFO,USER_ID,FLOW,LAST_MODIFIER,RSN,TARGET_ID,STATUS,REQUEST_TIME, CASE WHEN TYPE = 0 THEN 2 ELSE 3 END TYPE " +
+                    "            FROM WAM_APPROVAL_INFO " +
+                    "           WHERE UUID IN (" + historyUuids + ") ";
+        }
+
+        sql += "             ) A " +
+                "      LEFT JOIN WA3_USER B ON A.USER_ID = B.ID " +
+                "     ORDER BY REQUEST_TIME DESC";
+
+        JsonArray ja = dbConnect.getData(sql);
+
+        return ja.toString();
     }
 }

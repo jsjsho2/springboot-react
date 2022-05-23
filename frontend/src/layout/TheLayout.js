@@ -24,7 +24,6 @@ const TheLayout = () => {
     const {headerNameAndTitle, updateConfig} = useStore();
 
     useEffect(() => {
-
         const urlPath = window.location.pathname;
         const token = common.getParam('token');
         const localToken = localStorage.getItem("ssoToken");
@@ -43,6 +42,7 @@ const TheLayout = () => {
                                 localStorage.setItem("loginName", userInfo.NAME);
                                 localStorage.setItem("loginOrg", userInfo.ORG_NAME);
                                 localStorage.setItem("requestIp", rs.requestIp);
+                                localStorage.setItem("userAuth", rs.userAuth);
                                 setUserAuth(rs.userAuth);
                                 setSsoCheck(true);
                                 history.push(urlPath);
@@ -74,7 +74,6 @@ const TheLayout = () => {
                         setTokenFalseMessage(`토큰검증 실패: ${rs.nResult}`);
                         setTokenNull(true);
                     }
-
                     setFirstAccess(true);
                 });
         }

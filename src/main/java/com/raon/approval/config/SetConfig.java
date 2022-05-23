@@ -4,8 +4,6 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.raon.approval.db.DBConnect;
 import com.raon.approval.scheduleder.BatchBranch;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.stereotype.Component;
 
@@ -14,8 +12,6 @@ import java.util.HashMap;
 
 @Component
 public class SetConfig {
-
-    private static final Logger logger = LogManager.getLogger(SetConfig.class.getName());
 
     DBConnect dbConnect = new DBConnect();
     BatchBranch batchBranch = new BatchBranch();

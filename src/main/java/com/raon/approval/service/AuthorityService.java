@@ -4,15 +4,25 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import com.raon.approval.common.CommonFunction;
+import com.raon.approval.data.FixVariable;
 import com.raon.approval.db.DBConnect;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.stereotype.Service;
 
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
 @Service
-public class AuthorityService {
+public class AuthorityService extends CommonFunction {
 
     final
     CommonService commonService;
@@ -21,6 +31,36 @@ public class AuthorityService {
 
     public AuthorityService(CommonService commonService) {
         this.commonService = commonService;
+    }
+
+    public String makeSearchSql(Map map, HttpSession session) {
+        String sql = "SELECT A.*, B.NAME " +
+                "FROM WAM_USER_AUTH A " +
+                "LEFT JOIN WA3_USER B ON A.USER_ID = B.ID " +
+                "WHERE (A.STATUS <> 0 AND A.STATUS <> 7)";
+
+        if (map.get("userAuth").toString().equals("admin")) {
+            if (!map.get("targetInfo").toString().isEmpty()) {
+                String searchType = map.get("searchType").toString();
+                sql += "AND " + (searchType.equals("name") ? "B.NAME " : "A.USER_ID ") + " LIKE '%" + map.get("targetInfo") + "%' ";
+            }
+        } else {
+            String loginId = session.getAttribute("loginId").toString();
+            sql += "AND A.USER_ID = '" + loginId + "' ";
+        }
+
+        if (!map.get("roleName").toString().isEmpty()) {
+            sql += "AND A.ROLE_NAME LIKE '%" + map.get("roleName") + "%' ";
+        }
+
+        sql += "ORDER BY A.LAST_MODIFY_DATE DESC";
+
+        return sql;
+    }
+
+    public String getUserAuthorityHist(Map map, HttpSession session) {
+        String sql = makeSearchSql(map, session);
+        return commonService.stringJsonData(sql);
     }
 
     public String authorityReturn(Map map) {
@@ -141,5 +181,54 @@ public class AuthorityService {
         }
 
         return jsonArray.toString();
+    }
+
+    public void excelDown(Map map, HttpServletResponse response, HttpSession session) throws IOException {
+
+        JsonArray jarr = dbConnect.getData(makeSearchSql(map, session));
+
+        Workbook wb = new XSSFWorkbook();
+        Sheet sheet = wb.createSheet("권한 적용 이력");
+        Row row = null;
+        Cell cell = null;
+        int rowNum = 0;
+
+        row = sheet.createRow(rowNum++);
+        cell = row.createCell(0);
+        cell.setCellValue("대상");
+        cell = row.createCell(1);
+        cell.setCellValue("최종 수정 일시");
+        cell = row.createCell(2);
+        cell.setCellValue("역할");
+        cell = row.createCell(3);
+        cell.setCellValue("적용 일시");
+        cell = row.createCell(4);
+        cell.setCellValue("만료 일시");
+        cell = row.createCell(5);
+        cell.setCellValue("상태");
+
+        for (int i = 0; i < jarr.size(); i++) {
+            JsonObject jobj = jarr.get(i).getAsJsonObject();
+
+            row = sheet.createRow(rowNum++);
+            cell = row.createCell(0);
+            cell.setCellValue(nullCheck(jobj.get("NAME")) + "(" + nullCheck(jobj.get("USER_ID")) + ")");
+            cell = row.createCell(1);
+            cell.setCellValue(numberDateToString(jobj.get("LAST_MODIFY_DATE").getAsString()));
+            cell = row.createCell(2);
+            cell.setCellValue(nullCheck(jobj.get("ROLE_NAME")));
+            cell = row.createCell(3);
+            cell.setCellValue(numberDateToString(jobj.get("FROM_DATE").getAsString()));
+            cell = row.createCell(4);
+            cell.setCellValue(numberDateToString(jobj.get("TO_DATE").getAsString()));
+            cell = row.createCell(5);
+            cell.setCellValue(FixVariable.getStatus().get(jobj.get("STATUS").getAsString()));
+        }
+
+        response.setContentType("ms-vnd/excel");
+        response.setHeader("Content-Disposition", "attachment;filename=example.xlsx");
+
+        wb.write(response.getOutputStream());
+        wb.close();
     }
 }

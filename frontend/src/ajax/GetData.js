@@ -5,6 +5,7 @@ import SetData from "./SetData";
 const contextPath = '/WAM';
 
 const GetData = async (url, condition = {}, menu = 'undefined', type = 'manual') => {
+
     let data = [];
 
     url = `${contextPath}${url}`

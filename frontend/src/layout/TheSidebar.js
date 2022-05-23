@@ -51,7 +51,7 @@ const TheSidebar = (props) => {
             show={show}
             onShowChange={(val) => dispatch({type: 'set', sidebarShow: val})}
         >
-            <CSidebarBrand className='d-md-down-none' to={`${contextPath}/authority/status`}>
+            <CSidebarBrand className='d-md-down-none' to={`${contextPath}/authority/list`}>
                 {headerNameAndTitle}
             </CSidebarBrand>
             <CSidebarNav>

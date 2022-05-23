@@ -1,32 +1,28 @@
 import React, {useEffect, useRef, useState} from 'react'
-import {CCard, CCardBody, CCardHeader, CCol, CInput, CLabel, CSelect, CRow,} from '@coreui/react'
+import {CCard, CCardBody, CCardHeader, CCol, CInput, CLabel, CRow,} from '@coreui/react'
 import * as common from '../../components/CommonFunction';
 import SetAgGrid from "../../components/SetAgGrid";
 import CustomButton from "../../components/CustomButton";
+import TreeDataViewer from "../../components/TreeDataViewer";
 import Modal from "../../components/Modal";
 import GetData from "../../ajax/GetData";
 import SetData from "../../ajax/SetData";
-import TreeDataViewer from "../../components/TreeDataViewer";
-import {Button, DatePicker, Popconfirm, message} from "antd";
-import {FileTextOutlined} from "@ant-design/icons";
+import {Button, message, Popconfirm} from "antd";
 import DeleteFilled from "@ant-design/icons/es/icons/DeleteFilled";
+import {FileTextOutlined} from "@ant-design/icons";
 
-const Manage = () => {
+const List = () => {
+    const btnRef = useRef(null);
     const [getDataSignal, setGetDataSignal] = useState(false);
     const [loadings, setLoadings] = useState(true);
     const [returnLoadings, setReturnLoadings] = useState(false);
 
     const [previewVisible, setPreviewVisible] = useState(false);
-    const [roleServiceData, setRoleServiceData] = useState([]);
     const [authList, setAuthList] = useState([]);
-    const btnRef = useRef(null);
-
+    const [roleServiceData, setRoleServiceData] = useState([]);
     const [inputs, setInputs] = useState({
-        datePoint: '',
-        targetInfo: '',
-        searchType: 'name',
         roleName: '',
-        type: 1
+        type: 0
     });
     const onChange = (e) => {
         const {name, value} = e.target;
@@ -36,9 +32,6 @@ const Manage = () => {
             [name]: value,
         };
         setInputs(nextInputs)
-    };
-    const onDatetime = (datetime, value) => {
-        onChange({target: {name: 'datePoint', value: value}})
     };
 
     useEffect(() => {
@@ -52,7 +45,6 @@ const Manage = () => {
         fn.getData();
     }, []);
 
-
     const fn = {
         visible: {
             preview: visible => {
@@ -62,13 +54,11 @@ const Manage = () => {
         getData: async () => {
             setGetDataSignal(false);
             setLoadings(true);
-
-            const data = await GetData(`/REST/authority/appliedAuthority`, inputs, 'a3');
+            const url = "/REST/authority/appliedAuthority";
+            const data = await GetData(url, inputs, 'a0');
 
             setGetDataSignal(true);
             setLoadings(false);
-            let returnData = [];
-
             if (data === undefined) {
                 message.error('[ERROR] 오류가 계속 발생하면 관리자에게 문의바랍니다', 2);
                 return false;
@@ -76,76 +66,21 @@ const Manage = () => {
                 common.showGridNoRowMsg();
             } else {
                 common.hideGridNoRowMsg();
-
-                for (let i = 0; i < data.length; i++) {
-                    const obj = {
-                        userName: data[i].NAME + ' (' + data[i].USER_ID + ')',
-                        userId: data[i].USER_ID,
-                        id: data[i].ROLE_ID,
-                        name: data[i].ROLE_NAME,
-                        from: data[i].STATUS === '99' ? '조직별 기본 권한' : common.numberDateToString(data[i].FROM_DATE),
-                        to: data[i].STATUS === '99' ? '조직별 기본 권한' : common.numberDateToString(data[i].TO_DATE),
-                        uuid: data[i].UUID,
-                        status: data[i].STATUS
-                    };
-
-                    returnData.push(obj);
-                }
             }
 
-            setAuthList(returnData);
+            setAuthList(data);
         },
         PreviewService: props => {
             return (
                 <CustomButton
                     event={fn.getRoleInService}
-                    data={props.data.id}
+                    data={props.data.ROLE_ID}
                     icon={'cil-search'}
                 />
             )
         },
-        AuthorityReturn: props => {
-
-            return (
-                props.data.status === '99'
-                    ? <>회수 불가</>
-                    : <Popconfirm
-                        title="권한을 회수하시겠습니까?"
-                        onConfirm={() => {
-                            fn.authorityReturnInit(props.data)
-                        }}
-                        okText="예"
-                        cancelText="아니오"
-                    >
-                        <Button loading={returnLoadings} className={'table-in-button'} style={{background: '#ff5722'}}>
-                            <DeleteFilled/>
-                        </Button>
-                    </Popconfirm>
-            )
-        },
-        authorityReturnInit: targetValue => {
-            const obj = {
-                nextStatus: 3,
-                userId: targetValue.userId,
-                id: targetValue.id,
-                uuid: targetValue.uuid
-            };
-
-            setReturnLoadings(true);
-            SetData("/REST/authority/authorityReturn", obj, 'a32', 8)
-                .then((data) => {
-                    if (data) {
-                        message.success('회수되었습니다', 2);
-                        fn.getData();
-                    } else {
-                        message.error('[ERROR] 오류가 계속 발생하면 관리자에게 문의바랍니다', 2);
-                    }
-                }).finally(() => {
-                setReturnLoadings(true);
-            });
-        },
         getRoleInService: async roleId => {
-            const data = await GetData("/REST/authority/getRoleInService", {roleId: roleId}, 'a31');
+            const data = await GetData("/REST/authority/getRoleInService", {roleId: roleId}, 'a01');
 
             if (data === undefined) {
                 setPreviewVisible(false);
@@ -167,7 +102,7 @@ const Manage = () => {
 
                 for (let i = 0; i < array.length; i++) {
 
-                    let obj = {key: array[i]['ID'], type: array[i]['TYPE'], title: array[i]['NAME']};
+                    let obj = {key: array[i]['ID'], title: array[i]['NAME'], type: array[i]['TYPE']};
 
                     if (obj.type === '1' || obj.type === 1) {
                         obj['icon'] = <FileTextOutlined/>;
@@ -175,7 +110,6 @@ const Manage = () => {
                         obj['children'] = [];
                         isOpen.push(obj.key);
                     }
-
 
                     map[obj.key] = obj;
 
@@ -198,19 +132,66 @@ const Manage = () => {
                 returnData[2] = [];
                 return returnData;
             }
+        },
+        AuthorityReturn: props => {
+
+            return (
+                props.data.TARGET_UUID === null
+                    ? <>반환 불가</>
+                    : <Popconfirm
+                        title="권한을 반환하시겠습니까?"
+                        onConfirm={() => {
+                            fn.authorityReturnModalInit(props.data);
+                        }}
+                        okText="예"
+                        cancelText="아니오"
+                    >
+                        <Button loading={returnLoadings} className={'table-in-button'} style={{background: '#ff5722'}}>
+                            <DeleteFilled/>
+                        </Button>
+                    </Popconfirm>
+            )
+        },
+        authorityReturnModalInit: rowData => {
+            setReturnLoadings(true);
+            const condition = {
+                uuid: rowData.UUID,
+                nextStatus: 4,
+                userId: rowData.USER_ID,
+                id: rowData.ROLE_ID
+            };
+
+            SetData("/REST/authority/authorityReturn", condition, 'a02', 7)
+                .then((data) => {
+                    if (data) {
+                        message.success('반환되었습니다', 2);
+                        fn.getData();
+                    } else {
+                        message.error('[ERROR] 오류가 계속 발생하면 관리자에게 문의바랍니다', 2);
+                    }
+                }).finally(() => setReturnLoadings(false));
         }
-    }
+    };
 
     const grid = {
         colOption: [
-            {headerName: "사용자", field: "userName"},
-            {headerName: "역할", field: "name"},
-            {headerName: "적용 일시", field: "from"},
-            {headerName: "만료 일시", field: "to"},
-            {headerName: "메뉴", cellRenderer: 'previewService'},
-            {headerName: "회수", cellRenderer: 'authorityReturn'},
+            {headerName: "역할", field: "ROLE_NAME"},
+            {
+                headerName: "적용 일시", field: "FROM_DATE", valueFormatter:
+                    function (params) {
+                        return parseInt(params.value) === 0 ? '조직별 기본 권한' : common.numberDateToString(params.value)
+                    }
+            },
+            {
+                headerName: "만료 일시", field: "TO_DATE", valueFormatter:
+                    function (params) {
+                        return parseInt(params.value) === 0 ? '조직별 기본 권한' : common.numberDateToString(params.value)
+                    }
+            },
+            {headerName: "메뉴", field: "ROLE_ID", cellRenderer: 'previewService'},
+            {headerName: "반환", field: "UUID", cellRenderer: 'authorityReturn'},
         ]
-    };
+    }
 
     const frameworkComponents = {
         previewService: fn.PreviewService,
@@ -223,7 +204,7 @@ const Manage = () => {
                 <CCol xs={12}>
                     <CCard className="mb-4">
                         <CCardHeader>
-                            <strong>사용자별 권한 목록</strong>
+                            <strong>적용중인 권한 목록</strong>
                         </CCardHeader>
                         <CCardBody>
                             <CRow className="g-3" onKeyPress={e => {
@@ -231,23 +212,6 @@ const Manage = () => {
                                     btnRef.current.dispatchEvent(new Event('click', {bubbles: true}));
                                 }
                             }}>
-                                <CCol sm={2}>
-                                    <CLabel>구분</CLabel>
-                                    <CSelect name='searchType' className='ant-input' onChange={onChange}>
-                                        <option value="name">이름</option>
-                                        <option value="id">ID</option>
-                                    </CSelect>
-                                </CCol>
-
-                                <CCol sm={2}>
-                                    <CLabel>대상 정보</CLabel>
-                                    <CInput
-                                        name="targetInfo"
-                                        onChange={onChange}
-                                        className='ant-input'
-                                    />
-                                </CCol>
-
                                 <CCol sm={2}>
                                     <CLabel>역할명</CLabel>
                                     <CInput
@@ -257,15 +221,10 @@ const Manage = () => {
                                     />
                                 </CCol>
 
-                                <CCol sm={2}>
-                                    <CLabel>적용 일시</CLabel>
-                                    <DatePicker showTime name='datePoint' onChange={onDatetime}/>
-                                </CCol>
-
-
-                                <CCol className="function-btns" sm={4}>
-                                    <Button type='primary' loading={loadings} onClick={fn.getData}
-                                            ref={btnRef}>검색</Button>
+                                <CCol className="function-btns" sm={10}>
+                                    <Button type="primary" loading={loadings} onClick={fn.getData} ref={btnRef}>
+                                        검색
+                                    </Button>
                                 </CCol>
                             </CRow>
 
@@ -290,4 +249,4 @@ const Manage = () => {
     )
 };
 
-export default Manage;
+export default List;

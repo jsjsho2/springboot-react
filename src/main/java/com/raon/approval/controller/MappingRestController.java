@@ -35,10 +35,31 @@ public class MappingRestController {
         return mappingService.updateOrgRoleMapping(map);
     }
 
-    @PostMapping(value = "/OrgRoleMappingImpossibleCheck", produces = "application/text; charset=UTF-8")
+    @PostMapping(value = "/orgRoleMappingImpossibleCheck", produces = "application/text; charset=UTF-8")
     @ResponseBody
-    public String OrgRoleMappingImpossibleCheck(@RequestBody Map map) {
+    public String orgRoleMappingImpossibleCheck(@RequestBody Map map) {
 
-        return mappingService.OrgRoleMappingImpossibleCheck(map);
+        return mappingService.orgRoleMappingImpossibleCheck(map);
+    }
+
+    @PostMapping(value = "/getPositionList", produces = "application/text; charset=UTF-8")
+    @ResponseBody
+    public String getPositionList() {
+
+        return mappingService.getPositionList();
+    }
+
+    @PostMapping(value = "/getPositionByApprovalConfig", produces = "application/text; charset=UTF-8")
+    @ResponseBody
+    public String getPositionByApprovalConfig(@RequestBody Map map) {
+
+        return mappingService.getPositionByApprovalConfig(map);
+    }
+
+    @PostMapping(value = "/updateApprovalStep", produces = "application/text; charset=UTF-8")
+    @ResponseBody
+    public String updateApprovalStep(@RequestBody Map map) {
+
+        return mappingService.updateApprovalStep(map);
     }
 }

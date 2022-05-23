@@ -11,8 +11,8 @@ const _nav = [
         _children: [
             {
                 _tag: 'CSidebarNavItem',
-                name: '상태',
-                to: `/authority/status`,
+                name: '목록',
+                to: `/authority/list`,
             },
             {
                 _tag: 'CSidebarNavItem',
@@ -43,8 +43,13 @@ const _nav = [
         _children: [
             {
                 _tag: 'CSidebarNavItem',
-                name: '목록',
-                to: `/approval/list`,
+                name: '기안 목록',
+                to: `/approval/draft-list`,
+            },
+            {
+                _tag: 'CSidebarNavItem',
+                name: '결재 목록',
+                to: `/approval/approval-list`,
             },
         ],
     },
@@ -72,6 +77,11 @@ const _nav = [
                 _tag: 'CSidebarNavItem',
                 name: '역할&서비스',
                 to: `/mapping/role-services`,
+            },
+            {
+                _tag: 'CSidebarNavItem',
+                name: '직위&결재선',
+                to: `/mapping/approval-line`,
             },
         ],
     },

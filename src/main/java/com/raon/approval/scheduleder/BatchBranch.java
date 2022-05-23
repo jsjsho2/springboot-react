@@ -1,17 +1,17 @@
 package com.raon.approval.scheduleder;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.springframework.scheduling.Trigger;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.scheduling.support.CronTrigger;
 
 import java.time.LocalDateTime;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class BatchBranch {
 
-    private static final Logger logger = LogManager.getLogger(BatchBranch.class.getName());
+    private static final java.util.logging.Logger logger = Logger.getLogger(BatchBranch.class.getName());
 
     public static Map<String, ThreadPoolTaskScheduler> schedulerMap;
 
@@ -35,7 +35,7 @@ public class BatchBranch {
 
     private Runnable getRunnable(String uuid) {
         return () -> {
-            logger.info("[" + LocalDateTime.now() + "] BATCH UUID: " + uuid + " 실행");
+            logger.log(Level.INFO, "[" + LocalDateTime.now() + "] BATCH UUID: " + uuid + " 실행");
             RunBatch runBatch = new RunBatch();
             runBatch.exe(uuid);
         };

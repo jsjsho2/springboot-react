@@ -3,6 +3,7 @@ package com.raon.approval.service;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.raon.approval.db.DBConnect;
+import org.apache.tomcat.util.buf.StringUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -89,7 +90,16 @@ public class MappingService {
 
         String executeType = map.get("action").toString();
         if (executeType.equals("delete")) {
-            sqls.add("DELETE FROM WAM_ORG_ROLE_MAPPING WHERE ROLE_ID NOT IN (" + roleIds + ") AND ORG_ID IN (" + orgsIds + ") AND FLAG = '" + flag + "'");
+
+            String deleteSql = "DELETE FROM WAM_ORG_ROLE_MAPPING " +
+                    "WHERE ORG_ID IN (" + orgsIds + ") " +
+                    "AND FLAG = '" + flag + "'";
+
+            if (!roleIds.isEmpty() && !roleIds.equals("")) {
+                deleteSql += "AND ROLE_ID NOT IN (" + roleIds + ") ";
+            }
+
+            sqls.add(deleteSql);
         }
 
         String compareSql = "SELECT LISTAGG(ORG_ID, ',') WITHIN GROUP (ORDER BY ORG_ID) 조직, 역할 " +
@@ -115,96 +125,41 @@ public class MappingService {
 
             long dateTime = date.getTime();
             long toDate = cal.getTimeInMillis();
-            Calendar cal2 = Calendar.getInstance();
-            cal2.add(Calendar.DATE, 15);
-            String stringCal2 = String.valueOf(cal2.getTimeInMillis());
-
-            String userIds = "";
 
             for (int i = 0; i < orgs.size(); i++) {
-                String orgsId = orgs.get(i).toString();
+                String orgId = orgs.get(i).toString();
 
-                String setUserDefaultAuthoritySql = "MERGE INTO WAM_USER_AUTH USING DUAL ON (USER_ID = '${userId}' AND ROLE_ID = '${roleId}' AND STATUS = 8) " +
-                        "WHEN NOT MATCHED THEN " +
-                        "INSERT (UUID, TARGET_UUID, USER_ID, ROLE_ID, ROLE_NAME, FROM_DATE, TO_DATE, LAST_MODIFY_DATE, STATUS) " +
-                        "VALUES('${uuid}', 'null', '${userId}', '${roleId}', '${roleName}', " + dateTime + ", " + toDate + ", " + dateTime + ", 8)";
+                for (int j = 0; j < roles.size(); j++) {
+                    String roleId = roles.get(j).toString();
 
-                String authorizationSql = "MERGE INTO WA3_ROLE_MEMBER USING DUAL ON (TARGET_ID = '${userId}' AND ROLE_ID = '${roleId}') " +
-                        "WHEN NOT MATCHED THEN " +
-                        "INSERT(ROLE_ID, TARGET_TYPE, TARGET_ID, ASSIGNOR, VALID_FROM, VALID_TO) " +
-                        "VALUES('${roleId}', 0, '${userId}', 'master', " + dateTime + ", " + toDate + ")";
+                    String sql = "MERGE INTO WA3_ROLE_MEMBER USING DUAL ON (TARGET_ID = '${orgId}' AND ROLE_ID = '${roleId}') " +
+                            "WHEN NOT MATCHED THEN " +
+                            "INSERT(ROLE_ID, TARGET_TYPE, TARGET_ID, ASSIGNOR, VALID_FROM, VALID_TO) " +
+                            "VALUES('${roleId}', 1, '${orgId}', 'WAM MASTER', " + dateTime + ", " + toDate + ")";
 
-                String orgInUserIdSql = "SELECT LISTAGG(USER_ID, ',') WITHIN GROUP (ORDER BY USER_ID) AS IDS " +
-                        "FROM (SELECT USER_ID " +
-                        "FROM WA3_ORG_USER " +
-                        "WHERE ORG_ID = '${orgId}')";
+                    authorizationSqls.add(sql.replace("${orgId}", orgId).replace("${orgId}", orgId).replace("${roleId}", roleId));
+                }
 
-                orgInUserIdSql = orgInUserIdSql.replace("${orgId}", orgsId);
+                if (executeType.equals("delete")) {
+                    String deleteSql = "DELETE FROM WA3_ROLE_MEMBER " +
+                            "            WHERE TARGET_ID IN (" + orgsIds + ") " +
+                            "              AND TARGET_TYPE = 1 ";
 
-                JsonArray roleInfoObj = dbConnect.getData("SELECT * FROM WA3_ROLE WHERE ID IN (" + roleIds + ")");
-                JsonObject userIdObj = dbConnect.getDataOne(orgInUserIdSql);
-
-                if(!userIdObj.get("IDS").isJsonNull()){
-                    String[] orgInUserIdArr = userIdObj.get("IDS").getAsString().split(",");
-
-                    for (int j = 0; j < orgInUserIdArr.length; j++) {
-                        String userId = orgInUserIdArr[j];
-                        userIds += (j == 0 ? "" : ", ") + "'" + userId + "'";
-
-                        String authorizationSqlCopy = authorizationSql.replace("${userId}", userId);
-
-                        for (int k = 0; k < roleInfoObj.size(); k++) {
-                            String uuid = UUID.randomUUID().toString();
-                            JsonObject obj = roleInfoObj.get(k).getAsJsonObject();
-                            authorizationSqls.add(
-                                    setUserDefaultAuthoritySql.replace("${uuid}", uuid)
-                                            .replace("${userId}", userId)
-                                            .replace("${roleId}", obj.get("ID").getAsString())
-                                            .replace("${roleName}", obj.get("NAME").getAsString())
-                            );
-                        }
-
-                        authorizationSqls.add("INSERT INTO WAM_USER_AUTH_DEL_SCHEDULE " +
-                                "SELECT USER_ID, ROLE_ID, " + stringCal2 + " " +
-                                "FROM WAM_USER_AUTH " +
-                                "WHERE USER_ID = '" + userId + "' " +
-                                "AND ROLE_ID NOT IN (" + roleIds + ") " +
-                                "GROUP BY USER_ID, ROLE_ID");
-
-                        for (int k = 0; k < roles.size(); k++) {
-                            String roleId = roles.get(k).toString();
-                            authorizationSqls.add(authorizationSqlCopy.replace("${roleId}", roleId));
-                        }
+                    if (!roleIds.isEmpty() && !roleIds.equals("")) {
+                        deleteSql += "AND ROLE_ID NOT IN (" + roleIds + ") ";
                     }
+
+                    authorizationSqls.add(deleteSql);
                 }
             }
 
-            String setTargetRolesExpireSql = "UPDATE WAM_USER_AUTH SET " +
-                    "STATUS = 3 " +
-                    "WHERE (USER_ID, ROLE_ID, STATUS) IN (SELECT USER_ID, ROLE_ID, STATUS " +
-                    "FROM WAM_USER_AUTH " +
-                    "WHERE USER_ID IN (" + userIds + ") " +
-                    "AND ROLE_ID IN (" + roleIds + ") " +
-                    "AND (STATUS = 0 OR STATUS = 1 OR STATUS = 5))";
-
-            String setTargetRolesWaitExpireSql = "UPDATE WAM_USER_AUTH SET " +
-                    "STATUS = 9, " +
-                    "TO_DATE = " + stringCal2 + " " +
-                    "WHERE (USER_ID, ROLE_ID, STATUS) IN (SELECT USER_ID, ROLE_ID, STATUS " +
-                    "FROM WAM_USER_AUTH " +
-                    "WHERE USER_ID IN (" + userIds + ") " +
-                    "AND ROLE_ID NOT IN (" + roleIds + ") " +
-                    "AND STATUS = 8)";
-
-            authorizationSqls.add(setTargetRolesExpireSql);
-            authorizationSqls.add(setTargetRolesWaitExpireSql);
             dbConnect.inputMultiData(authorizationSqls);
         }
 
         return beforeData.toString();
     }
 
-    public String OrgRoleMappingImpossibleCheck(Map map) {
+    public String orgRoleMappingImpossibleCheck(Map map) {
         ArrayList orgs = (ArrayList) map.get("orgs");
         ArrayList roles = (ArrayList) map.get("roles");
 
@@ -225,11 +180,78 @@ public class MappingService {
                 "       FROM WAM_ORG_ROLE_MAPPING A " +
                 "       LEFT JOIN WA3_ROLE B ON A.ROLE_ID = B.ID " +
                 "       LEFT JOIN WA3_ORG C ON A.ORG_ID = C.ID " +
-                "      WHERE ORG_ID IN (" + orgsIds + ") " +
-                "        AND ROLE_ID IN (" + roleIds + ") " +
-                "        AND FLAG = '" + (map.get("flag").equals("d") ? "a" : "d") + "' " +
-                "      ORDER BY A.ORG_ID";
+                "      WHERE A.FLAG = '" + (map.get("flag").equals("d") ? "a" : "d") + "' " +
+                "        AND A.ORG_ID IN (" + orgsIds + ") ";
+
+        if (!roleIds.isEmpty() && !roleIds.equals("")) {
+            sql += "AND A.ROLE_ID IN (" + roleIds + ") ";
+        } else {
+            return new JsonArray().toString();
+        }
+
+        sql += "ORDER BY A.ORG_ID";
 
         return commonService.stringJsonData(sql);
+    }
+
+    public String getPositionList() {
+
+
+        String sql = "SELECT CODE \"value\", NAME \"label\" " +
+                "       FROM WAM_POSITION_LIST " +
+                "      WHERE FROM_DATE <= TO_CHAR(SYSDATE, 'YYYYMMDD') " +
+                "        AND TO_DATE >= TO_CHAR(SYSDATE, 'YYYYMMDD')";
+        return commonService.stringJsonData(sql);
+    }
+
+    public String getPositionByApprovalConfig(Map map) {
+
+        String sql = "SELECT * " +
+                "       FROM WAM_APPROVAL_STEP_CONFIG " +
+                "      WHERE TARGET = '" + map.get("target") + "'";
+
+        return dbConnect.getDataOne(sql).toString();
+    }
+
+    public String updateApprovalStep(Map map) {
+
+        ArrayList sqls = new ArrayList();
+
+        int nStep = (int) map.get("nStep");
+        int self = (int) map.get("self");
+        ArrayList targets = (ArrayList) map.get("target");
+        String targetString = "";
+
+        for (int i = 0; i < targets.size(); i++) {
+            String target = targets.get(i).toString();
+            targetString += (i == 0 ? "" : ",") + "'" + target + "'";
+
+            String sql = "MERGE INTO WAM_APPROVAL_STEP_CONFIG USING DUAL ON (TARGET = '" + target + "') " +
+                    "WHEN MATCHED THEN UPDATE SET " +
+                    "N_STEP = " + nStep + ", " +
+                    "SELF = " + self + ", " +
+                    "STEP1 = '" + (nStep >= 1 ? StringUtils.join((ArrayList) map.get("step1"), ',') : "") + "', " +
+                    "STEP2 = '" + (nStep >= 2 ? StringUtils.join((ArrayList) map.get("step2"), ',') : "") + "', " +
+                    "STEP3 = '" + (nStep >= 3 ? StringUtils.join((ArrayList) map.get("step3"), ',') : "") + "' " +
+                    "WHEN NOT MATCHED THEN " +
+                    "INSERT(TARGET, N_STEP, SELF, STEP1, STEP2, STEP3) " +
+                    "VALUES('" + target + "', " + nStep + ", " + self + ", " +
+                    "'" + (nStep >= 1 ? StringUtils.join((ArrayList) map.get("step1"), ',') : "") + "', " +
+                    "'" + (nStep >= 1 ? StringUtils.join((ArrayList) map.get("step2"), ',') : "") + "', " +
+                    "'" + (nStep >= 1 ? StringUtils.join((ArrayList) map.get("step3"), ',') : "") + "')";
+
+            sqls.add(sql);
+        }
+
+        String compareSql = "SELECT * FROM WAM_APPROVAL_STEP_CONFIG WHERE TARGET IN (" + targetString + ")";
+
+        JsonArray beforeData = dbConnect.getData(compareSql);
+        JsonObject object = new JsonObject();
+        object.addProperty("COMPARE_SQL", compareSql);
+        beforeData.add(object);
+
+        dbConnect.inputMultiData(sqls);
+
+        return beforeData.toString();
     }
 }

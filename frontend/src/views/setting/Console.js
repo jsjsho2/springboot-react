@@ -17,7 +17,6 @@ import useStore from "../../store/store";
 import SetData from "../../ajax/SetData";
 
 const Console = () => {
-
     const {
         sessionTime,
         redirectUrl,
@@ -30,7 +29,6 @@ const Console = () => {
         updateConfig
     } = useStore();
     const [settingUpdating, setSettingUpdating] = useState(false);
-
     const [inputs, setInputs] = useState({
         sessionTime: ['session', 'time', sessionTime],
         redirectUrl: ['session', 'time', redirectUrl],
@@ -49,7 +47,7 @@ const Console = () => {
         batch: false,
     });
 
-    const onChange = (e) => {
+    const onChange = e => {
         const {name, value} = e.target;
         const copy = [...inputs[name]];
         copy[2] = value;
@@ -60,8 +58,7 @@ const Console = () => {
 
         setInputs(nextInputs)
     };
-
-    const toggle = (target) => {
+    const toggle = target => {
         const copy = collapse[target];
 
         const nextCollapse = {
@@ -70,32 +67,34 @@ const Console = () => {
         };
 
         setCollapse(nextCollapse);
-    }
+    };
 
-    const updateSetting = () => {
-        setSettingUpdating(true);
+    const fn = {
+        updateSetting: () => {
+            setSettingUpdating(true);
 
-        SetData("/REST/setting/updateConsoleConfig", inputs, 'f0', 2)
-            .then((data) => {
-                if (data) {
-                    message.success('저장완료', 2);
-                } else {
-                    message.error('[ERROR] 오류가 계속 발생하면 관리자에게 문의바랍니다', 2);
+            SetData("/REST/setting/updateConsoleConfig", inputs, 'f0', 2)
+                .then((data) => {
+                    if (data) {
+                        message.success('저장완료', 2);
+                    } else {
+                        message.error('[ERROR] 오류가 계속 발생하면 관리자에게 문의바랍니다', 2);
+                    }
+                }).finally(() => {
+
+                setSettingUpdating(false);
+
+                for (const key in inputs) {
+                    const obj = {
+                        KEY: key,
+                        VALUE: inputs[key][2]
+                    };
+
+                    updateConfig(obj);
                 }
-            }).finally(() => {
-
-            setSettingUpdating(false);
-
-            for (const key in inputs) {
-                const obj = {
-                    KEY: key,
-                    VALUE: inputs[key][2]
-                };
-
-                updateConfig(obj);
-            }
-        });
-    }
+            });
+        }
+    };
 
     return (
         <>
@@ -110,7 +109,7 @@ const Console = () => {
                                 <CCol className="function-btns" sm={12}>
                                     <Popconfirm
                                         title="저장하시겠습니까?"
-                                        onConfirm={updateSetting}
+                                        onConfirm={fn.updateSetting}
                                         okText="예"
                                         cancelText="아니오"
                                     >
